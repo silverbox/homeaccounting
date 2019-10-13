@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "DynamoDB for My Home Account"
+Resources:
+  DDBTablemyhomeaccountaccountbalance:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "account_balance"
+      AttributeDefinitions:
+        - AttributeName: "tgt_date"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "tgt_date"
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: "Name"
+          Value: "balance information"
+  DDBTablemyhomeaccountaccountkindmst:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "account_kind_mst"
+      AttributeDefinitions:
+        - AttributeName: "kind_cd"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "kind_cd"
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: "Name"
+          Value: "slip kind information"
+  DDBTablemyhomeaccountaccountslip:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "account_slip"
+      AttributeDefinitions:
+        - AttributeName: "tgt_date"
+          AttributeType: "S"
+        - AttributeName: "kind_cd_seq"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "tgt_date"
+          KeyType: HASH
+        - AttributeName: "kind_cd_seq"
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: "Name"
+          Value: "slip kind information"

@@ -1,0 +1,189 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Lambda for My Home Account"
+Parameters:
+  myhomeaccountgetbalanceContents:
+    Type: String
+    Default: |
+      var response = require('cfn-response');
+      exports.handler = function(event, context) {
+         var responseData = {Value: event.ResourceProperties.List};
+         responseData.Value.push(event.ResourceProperties.AppendedItem);
+         response.send(event, context, response.SUCCESS, responseData);
+      };
+Resources:
+  Rolemyhomeaccount:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: "role-myhome-account"
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: "policy-myhome-account"
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - cloudwatch:GetMetricStatistics
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - dynamodb:GetRecords
+                - dynamodb:GetItem
+                - dynamodb:BatchGetItem
+                - dynamodb:BatchWriteItem
+                - dynamodb:DeleteItem
+                - dynamodb:Query
+                - dynamodb:PutItem
+                - dynamodb:UpdateItem
+              Resource:
+                - "arn:aws:dynamodb:ap-northeast-1:055389889595:table/account_*"
+            - Effect: Allow
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:DescribeNetworkInterfaces
+                - ec2:DeleteNetworkInterface
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource:
+                - "arn:aws:sns:ap-northeast-1:055389889595:myhome-account-failure-notification"
+  LAMBDAmyhomeaccountmyhomeaccountgetbalance:
+    Type: "AWS::Lambda::Function"
+    Properties: 
+      FunctionName: "myhome-account-get-balance"
+      Handler: "myhome-account-get-balance.lambda_handler"
+      Runtime: "python3.7"
+      Timeout: "5"
+      Role: !GetAtt Rolemyhomeaccount.Arn
+      Code: 
+        ZipFile: !Ref myhomeaccountgetbalanceContents
+      Tags:
+        - Key: Name
+          Value: "myhome-account-myhome-account-get-balance"
+        - Key: Description
+          Value: "Get Account balance"
+  LOGGROUPmyhomeaccountmyhomeaccountgetbalance:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: /aws/lambda/myhome-account-get-balance
+      RetentionInDays: "30"
+  APIGatewaymyhomeaccount:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "apigw-myhome-account"
+  APIGatewayMethodmyhomeaccount:
+    Type: AWS::ApiGateway::Method
+    DependsOn:
+      - APIGatewaymyhomeaccount
+    Properties:
+      HttpMethod: POST
+      ResourceId: !GetAtt APIGatewaymyhomeaccount.RootResourceId
+      RestApiId: !Ref APIGatewaymyhomeaccount
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+  APIGatewayEmptyDeploymyhomeaccount:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - APIGatewayMethodmyhomeaccount
+    Properties: 
+      Description: "empty deploy"
+      RestApiId: !Ref APIGatewaymyhomeaccount
+  APIGatewayStagemyhomeaccountdev:
+    Type: AWS::ApiGateway::Stage
+    DependsOn:
+      - APIGatewayEmptyDeploymyhomeaccount
+    Properties:
+      Description: "developing"
+      StageName: "dev"
+      RestApiId: !Ref APIGatewaymyhomeaccount
+      DeploymentId: !Ref APIGatewayEmptyDeploymyhomeaccount
+  APIGatewayLOGGROUPmyhomeaccountdev:
+    Type: AWS::Logs::LogGroup
+    DependsOn:
+      - APIGatewayStagemyhomeaccountdev
+    Properties: 
+      LogGroupName: !Join 
+        - ""
+        - - "API-Gateway-Execution-Logs_"
+          - !Ref APIGatewaymyhomeaccount
+          - "/dev"
+      RetentionInDays: "30"
+  APIGatewayStagemyhomeaccountproduction:
+    Type: AWS::ApiGateway::Stage
+    DependsOn:
+      - APIGatewayEmptyDeploymyhomeaccount
+    Properties:
+      Description: "production"
+      StageName: "production"
+      RestApiId: !Ref APIGatewaymyhomeaccount
+      DeploymentId: !Ref APIGatewayEmptyDeploymyhomeaccount
+  APIGatewayLOGGROUPmyhomeaccountproduction:
+    Type: AWS::Logs::LogGroup
+    DependsOn:
+      - APIGatewayStagemyhomeaccountproduction
+    Properties: 
+      LogGroupName: !Join 
+        - ""
+        - - "API-Gateway-Execution-Logs_"
+          - !Ref APIGatewaymyhomeaccount
+          - "/production"
+      RetentionInDays: "30"
+  APIGatewayKeymyhomeaccount:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn:
+      - APIGatewayStagemyhomeaccountdev
+      - APIGatewayStagemyhomeaccountproduction
+    Properties: 
+      Name: "apigw-key-casas"
+      Enabled: true
+      StageKeys: 
+        - RestApiId: !Ref APIGatewaymyhomeaccount
+          StageName: "dev"
+        - RestApiId: !Ref APIGatewaymyhomeaccount
+          StageName: "production"
+  APIGatewayClientCertificatemyhomeaccount:
+    Type: AWS::ApiGateway::ClientCertificate
+    Properties:
+      Description: "test"
+  APIGatewayUsagePlanmyhomeaccount:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn:
+      - APIGatewayStagemyhomeaccountdev
+      - APIGatewayStagemyhomeaccountproduction
+    Properties:
+      ApiStages:
+      - ApiId:
+          Ref: APIGatewaymyhomeaccount
+        Stage: "dev"
+      - ApiId:
+          Ref: APIGatewaymyhomeaccount
+        Stage: "production"
+      Throttle:
+        BurstLimit: "10"
+        RateLimit: "10"
+      UsagePlanName: "apigw-usage-myhome-account"
+  APIGatewayUsagePlanKeymyhomeaccount:
+    Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+      - APIGatewayKeymyhomeaccount
+      - APIGatewayUsagePlanmyhomeaccount
+    Properties : 
+      KeyId: !Ref APIGatewayKeymyhomeaccount
+      KeyType: API_KEY
+      UsagePlanId: !Ref APIGatewayUsagePlanmyhomeaccount
