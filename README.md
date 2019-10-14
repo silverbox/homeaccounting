@@ -15,6 +15,7 @@ Accounting service based on AWS service.
   - aws/cloudformation/templates/cfn-mainbody-template
   - aws/cloudformation/templates/cfn-cloudfront-template<br>
     need one parameter [API Key of API Gateway].
+  - set CloudFront config. behaviors (API Gateway)> Edit > change "Cache Based on Selected Request Headers" to "None(Improves caching)"
 
 # branches
 - 1-1-base_design <br>

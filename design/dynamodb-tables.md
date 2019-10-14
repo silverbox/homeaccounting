@@ -6,7 +6,7 @@ every income/consume information
   YYYYMMDD format date string. event date.
 - kind_cd_seq (Primary key : RANGE, Type : String) <br>
   combine kind_cd and 0000 format string.
-- val (Type : Number)<br>
+- value (Type : Number)<br>
   amount of consume(or income).
 - memo (Type : String)<br>
   information of each consume.
@@ -26,4 +26,5 @@ master data of income/consume
 balance at the beginning of the settle date.
 - tgt_date (Primary key : HASH, Type : String)<br>
   YYYYMMDD format date string. event date.
-
+- value (Type : Number)<br>
+  amount of consume(or income).

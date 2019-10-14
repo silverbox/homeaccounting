@@ -75,3 +75,4 @@ definitions:
     properties:
       status:
         type: "string"
+
