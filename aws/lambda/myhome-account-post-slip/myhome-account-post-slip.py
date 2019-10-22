@@ -1,24 +1,31 @@
 import json
 import boto3
+import logging
 
 dynamodb = boto3.resource('dynamodb')
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 def lambda_handler(event, context):
+    logger.debug("Received event body: " + json.dumps(event, indent=0))
+
+    bodyParam = json.loads(event['body'])
+    slipItem = {
+        "tgt_date" : bodyParam['tgt_date'],
+        "kind_cd_seq" : bodyParam['kind_cd_seq'],
+        "value" : bodyParam['value'],
+        "memo" : bodyParam['memo']
+    }
+
     table_name = 'account_slip'
-    eventParam = event['queryStringParameters']
-    print("Received event: " + json.dumps(eventParam, indent=2))
-    primary_key = {'tgt_date': eventParam['tgt_date']}
     dynamotable = dynamodb.Table(table_name)
-    res = dynamotable.get_item(Key=primary_key)
-    item = res['Item']
-    ret = {}
-    ret['value'] = str(item['value'])
+
+    res = dynamotable.put_item(Item=slipItem)
+    print("put result response: " + json.dumps(res, indent=2))
 
     return {
         'statusCode': 200,
-        'body': json.dumps(ret, indent=0),
-        'headers': {
-            'my_header': 'dummy'
-        },
+        'body': "{}",
+        'headers': {},
         'isBase64Encoded': False
     }

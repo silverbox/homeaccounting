@@ -44,6 +44,10 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Balance"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
       security:
         - api_key: []
       x-amazon-apigateway-integration:
@@ -51,6 +55,8 @@ paths:
         responses:
           default:
             statusCode: "200"
+          .+:
+            statusCode: "500"
         passthroughBehavior: "when_no_templates"
         requestTemplates:
           "application/json" : "{ \"tgt_date\": \"$input.params('tgt_date')\" }"
@@ -91,6 +97,10 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/KindMstList"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
       security:
         - api_key: []
       x-amazon-apigateway-integration:
@@ -98,6 +108,8 @@ paths:
         responses:
           default:
             statusCode: "200"
+          .+:
+            statusCode: "500"
         passthroughBehavior: "when_no_match"
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
@@ -120,6 +132,10 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/SlipList"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
       security:
         - api_key: []
       x-amazon-apigateway-integration:
@@ -127,6 +143,8 @@ paths:
         responses:
           default:
             statusCode: "200"
+          .+:
+            statusCode: "500"
         passthroughBehavior: "when_no_templates"
         requestTemplates:
           "application/json" : "{ \"tgt_date_from\": \"$input.params('tgt_date_from')\", \"tgt_date_to\": \"$input.params('tgt_date_to')\" }"
