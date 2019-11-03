@@ -19,6 +19,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Health"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
       x-amazon-apigateway-integration:
         responses:
           200:
@@ -26,9 +33,42 @@ paths:
             responseTemplates:
               application/json: "#set($inputRoot = $input.path('$'))\n{\n  \"status\"\
                 \ : \"Health OK\"\n}"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
-        passthroughBehavior: "when_no_match"
+        passthroughBehavior: "when_no_templates"
+        type: "mock"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
         type: "mock"
   /api/balance:
     get:
@@ -44,6 +84,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Balance"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
         500:
           description: "Internal Error."
           schema:
@@ -55,6 +102,10 @@ paths:
         responses:
           default:
             statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
           .+:
             statusCode: "500"
         passthroughBehavior: "when_no_templates"
@@ -63,6 +114,35 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
     post:
       produces:
       - "application/json"
@@ -77,6 +157,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
       security:
         - api_key: []
       x-amazon-apigateway-integration:
@@ -84,6 +171,10 @@ paths:
         responses:
           default:
             statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
         passthroughBehavior: "when_no_match"
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
@@ -97,6 +188,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/KindMstList"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
         500:
           description: "Internal Error."
           schema:
@@ -108,12 +206,45 @@ paths:
         responses:
           default:
             statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
           .+:
             statusCode: "500"
         passthroughBehavior: "when_no_match"
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: aws_proxy
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
   /api/slip:
     get:
       produces:
@@ -132,6 +263,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/SlipList"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
         500:
           description: "Internal Error."
           schema:
@@ -143,6 +281,10 @@ paths:
         responses:
           default:
             statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
           .+:
             statusCode: "500"
         passthroughBehavior: "when_no_templates"
@@ -151,6 +293,35 @@ paths:
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"
         type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
     post:
       produces:
       - "application/json"
@@ -165,6 +336,13 @@ paths:
           description: "200 response"
           schema:
             $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
       security:
         - api_key: []
       x-amazon-apigateway-integration:
@@ -172,6 +350,10 @@ paths:
         responses:
           default:
             statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
         passthroughBehavior: "when_no_match"
         httpMethod: "POST"
         contentHandling: "CONVERT_TO_TEXT"

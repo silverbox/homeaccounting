@@ -19,6 +19,8 @@ Accounting service based on AWS service.
 
 2. Deploy lambda function
 
+3. Set API endpoint and API key to frontside/homeaccount/src/router/index.js
+
 # branches
 - 1-1-base_design <br>
 Add design information, cloudformation template files, sample s3 resource and apigateway swagger file.
