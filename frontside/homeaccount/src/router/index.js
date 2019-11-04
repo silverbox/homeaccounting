@@ -12,13 +12,8 @@ Vue.use(ElementUI, { locale })
 
 Vue.prototype.$axios = axios
 
-var API_URL_BASE = '/api/'
-var API_KEY = ''
-if (process.env.NODE_ENV !== 'production') {
-  API_URL_BASE = 'https://fugafuga.execute-api.ap-northeast-1.amazonaws.com/dev/api/'
-  API_KEY = 'hogehoge'
-}
-Vue.prototype.apienv = {baseurl: API_URL_BASE, key: API_KEY}
+Vue.prototype.apienv = {baseendpoint: process.env.API_ENDPOINT_BASE, key: process.env.API_KEY}
+console.log(process.env.NODE_ENV)
 
 export default new Router({
   routes: [

@@ -116,7 +116,7 @@ export default {
   methods: {
     reload: function () {
       console.log(this.tgtdate)
-      console.log(this.apienv.baseurl)
+      console.log(this.apienv.baseendpoint)
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export default {
         data: {}
       }
 
-      this.$axios.get(this.apienv.baseurl + 'balance?tgt_date=20190831', config).then(
+      this.$axios.get(this.apienv.baseendpoint + 'balance?tgt_date=20190831', config).then(
         response => {
           console.log(response.data)
           /* this.tableData3 = response.data; */
