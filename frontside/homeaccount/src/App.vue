@@ -1,13 +1,41 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <el-menu
+      :default-active="activeIndex"
+      class="el-menu-navi"
+      mode="horizontal"
+      @select="handleNavSelect">
+      <router-link tag="el-menu-item" id="el-menu-nav" to="/input" index="1">Input</router-link>
+      <router-link tag="el-menu-item" id="el-menu-nav" to="/list" index="2">List</router-link>
+      <router-link tag="el-menu-item" id="el-menu-nav" to="/graph" index="3">Graph</router-link>
+      <router-link tag="el-menu-item" id="el-menu-nav" to="/" index="4">Table</router-link>
+    </el-menu>
+  <!--
+    <el-tabs v-model="activeName" @tab-click="handleTabClick">
+      <el-tab-pane label="Input" name="input">Input</el-tab-pane>
+      <el-tab-pane label="List" name="list">List</el-tab-pane>
+      <el-tab-pane label="Graph" name="graph">Graph</el-tab-pane>
+      <el-tab-pane label="Table" name="table">Table</el-tab-pane>
+    </el-tabs>
+  <img src="./assets/logo.png">
+   -->
     <router-view/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  data () {
+    return {
+      activeIndex: '1'
+    }
+  },
+  methods: {
+    handleNavSelect (tab, event) {
+      console.log(tab, event)
+    }
+  }
 }
 </script>
 
@@ -18,6 +46,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 10px;
 }
 </style>

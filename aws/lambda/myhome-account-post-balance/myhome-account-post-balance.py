@@ -27,7 +27,9 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': json.dumps(ret, indent=0),
         'headers': {
-            'my_header': 'dummy'
+            'Access-Control-Allow-Headers' : 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+            'Access-Control-Allow-Methods' : 'GET,OPTIONS,POST',
+            'Access-Control-Allow-Origin' : 'http://localhost:8080'
         },
         'isBase64Encoded': False
     }
