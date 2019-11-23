@@ -1,6 +1,6 @@
 <template>
-  <el-dialog title="入力" :visible.sync="slipDialogVisible">
-    <el-form ref="form" :model="slip" label-width="60px">
+  <el-dialog title="入力" :visible.sync="slipDialogVisible" class="slipinputdlg">
+    <el-form ref="form" :model="slip" label-width="80px">
       <el-form-item label="日付">
         <el-date-picker v-model="slip.tgt_date_obj" type="date" placeholder="Pick a day" />
       </el-form-item>
@@ -160,6 +160,14 @@ export default {
   padding : 20px;
 }
 .dialog-footer {
-    text-align: right;
+  text-align: right;
+}
+@media (max-width:640px) {
+  .slipinputdlg >>> .el-dialog {
+    width: 280px;
+  }
+  .slipinputdlg >>> .el-date-editor.el-input, .el-date-editor.el-input__inner {
+    width: 160px;
+  }
 }
 </style>
