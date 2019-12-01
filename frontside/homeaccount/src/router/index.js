@@ -5,6 +5,7 @@ import HelloWorld from '@/components/HelloWorld'
 import Input from '@/components/Input'
 import List from '@/components/List'
 import Graph from '@/components/Graph'
+import Table from '@/components/Table'
 
 import axios from 'axios'
 import ElementUI from 'element-ui'
@@ -47,6 +48,11 @@ export default new Router({
       path: '/graph',
       name: 'Graph',
       component: Graph
+    },
+    {
+      path: '/table',
+      name: 'Table',
+      component: Table
     }
   ]
 })

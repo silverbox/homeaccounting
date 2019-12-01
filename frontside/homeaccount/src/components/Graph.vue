@@ -1,54 +1,57 @@
 <template>
-  <div class="hello">
-    <div class="sample">
-      <h2>Basic Button</h2>
-      <el-row>
-        <el-button plain>Plain</el-button>
-        <el-button type="primary" plain @click="reload">Reload</el-button>
-        <el-button type="success" plain>Success</el-button>
-        <el-button type="info" plain>Info</el-button>
-        <el-button type="warning" plain>Warning</el-button>
-        <el-button type="danger" plain>Danger</el-button>
-      </el-row>
-    </div>
-
-    <div class="sample">
-      <h2>Text Button</h2>
-      <el-row>
-        <el-date-picker v-model="tgtdate" type="date" placeholder="Pick a day" />
-        <el-input v-model="balance" />
-      </el-row>
-    </div>
+  <div class='container'>
+    <bar-chart v-if='loaded' :chart-data='chartdata' :options='options'></bar-chart>
   </div>
 </template>
 
 <script>
+import BarChart from '@/components/BarChart.js'
+import * as palette from 'google-palette'
+
+const LOAD_DATE_CNT = 7
 
 export default {
   name: 'Graph',
-  data () {
-    return {
-      balance: 0,
-      tgtdate: new Date()
-    }
+  components: {
+    BarChart
+  },
+  data: () => ({
+    loaded: false,
+    chartdata: null,
+    options: null
+  }),
+  mounted () {
+    this.loaded = false
+    this.loadgraph()
   },
   methods: {
-    reload: function () {
-      console.log(this.tgtdate)
-      console.log(this.apienv.baseendpoint)
+    loadgraph: function () {
+      var that = this
       const config = {
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': this.apienv.key,
+          'x-api-key': that.apienv.key,
           'Authorization': 1
         },
         data: {}
       }
+      that.loading = true
+      const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
 
-      this.$axios.get(this.apienv.baseendpoint + 'balance?tgt_date=20190831', config).then(
+      const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_count=' + LOAD_DATE_CNT
+      console.log('loadgraph start:' + prmstr)
+      that.$axios.get(that.apienv.baseendpoint + 'chart?' + prmstr, config).then(
         response => {
-          console.log(response.data)
-          /* this.tableData3 = response.data; */
+          that.options = response.data['options']
+          const barcolors = palette('mpn65', response.data['chartdata']['datasets'].length).map((hex) => {
+            return '#' + hex
+          })
+          response.data['chartdata']['datasets'].forEach(function (value, index) {
+            value['backgroundColor'] = barcolors[index]
+          })
+          that.chartdata = response.data['chartdata']
+
+          that.loaded = true
         }
       )
     }
@@ -56,7 +59,7 @@ export default {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+<!-- Add 'scoped' attribute to limit CSS to this component only -->
 <style scoped>
 
 </style>

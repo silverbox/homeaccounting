@@ -25,7 +25,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="金額">
-        <el-input v-model="slip.value" />
+        <el-input v-model="slip.value" type="number"/>
       </el-form-item>
       <el-form-item label="メモ">
         <el-input v-model="slip.memo" />

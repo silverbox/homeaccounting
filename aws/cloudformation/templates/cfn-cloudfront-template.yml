@@ -1,5 +1,10 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "S3 Bucket of CloudFront Origin for My Home Account"
+Parameters:
+  APIGatewayKey:
+    Type: String
+    Default: ""
+    Description: "API Key for OAI"
 Resources:
   # S3 Bucket For CloudFront Origin
   MyhomeaccountCloudFrontOriginS3:
@@ -40,6 +45,8 @@ Resources:
         IPV6Enabled: True
         DefaultRootObject: index.html
         HttpVersion: http2
+        PriceClass: PriceClass_100
+#        WebACLId: !ImportValue MyhomeaccountCloudFrontWafACL
         Comment: !Sub ${AWS::StackName}-distribution
         Origins:
         - Id: S3Origin
@@ -54,6 +61,9 @@ Resources:
             HTTPSPort: 443
             OriginProtocolPolicy: match-viewer
           OriginPath: /dev
+          OriginCustomHeaders:
+          - HeaderName: "x-api-key"
+            HeaderValue: !Ref APIGatewayKey
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ForwardedValues:

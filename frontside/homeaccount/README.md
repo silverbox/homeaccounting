@@ -37,4 +37,6 @@ vue init webpack homeaccount
 cd {{ your WORKDIR }}\homeaccount
 npm install --save element-ui
 npm install --save axios
+npm install vue-chartjs chart.js --save
+npm install google-palette --save
 ```

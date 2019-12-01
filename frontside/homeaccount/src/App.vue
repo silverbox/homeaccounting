@@ -8,7 +8,7 @@
       <router-link tag="el-menu-item" id="el-menu-nav" to="/input" index="1">Input</router-link>
       <router-link tag="el-menu-item" id="el-menu-nav" to="/list" index="2">List</router-link>
       <router-link tag="el-menu-item" id="el-menu-nav" to="/graph" index="3">Graph</router-link>
-      <router-link tag="el-menu-item" id="el-menu-nav" to="/" index="4">Table</router-link>
+      <router-link tag="el-menu-item" id="el-menu-nav" to="/table" index="4">Table</router-link>
     </el-menu>
   <!--
     <el-tabs v-model="activeName" @tab-click="handleTabClick">

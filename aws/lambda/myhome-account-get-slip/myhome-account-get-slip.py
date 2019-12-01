@@ -27,11 +27,11 @@ def lambda_handler(event, context):
     date_from = None;
     date_to = None;
     date_count = None;
-    if 'tgt_date_from' in event:
+    if 'tgt_date_from' in event and event['tgt_date_from'] != '':
         date_from = dateutil.parser.parse(event['tgt_date_from'])
-    if 'tgt_date_to' in event:
+    if 'tgt_date_to' in event and event['tgt_date_to'] != '':
         date_to = dateutil.parser.parse(event['tgt_date_to'])
-    if 'tgt_date_count' in event:
+    if 'tgt_date_count' in event and event['tgt_date_count'] != '':
         date_count = int(event['tgt_date_count'])
 
     if (date_from is None) and date_count is not None:
