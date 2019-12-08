@@ -24,7 +24,7 @@
           <div class="slip-val-elem ">{{ item.memo }}</div>
         </div>
       </div>
-      <p v-if="loading">
+      <p v-if="loading" v-loading="loading">
         <span>Loading {{ loaddatecnt }} days before from </span>
         <el-date-picker v-model="wkdate" type="date" :readonly="true" />
       </p>

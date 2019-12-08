@@ -39,4 +39,10 @@ npm install --save element-ui
 npm install --save axios
 npm install vue-chartjs chart.js --save
 npm install google-palette --save
+npm install ajv --save
+npm install aws-sdk --save
+npm install amazon-cognito-identity-js --save
+npm install -g ajv@6 --save
+
+npm i -g npm
 ```

@@ -17,7 +17,8 @@ const _kindmst = [
   {'kind_cd': 'tax', 'kind_nm': '税金', 'matrix_cd': 'special', 'account_dir': '0', 'memo': '各種税金。特別出費か。', 'display_order': '16', 'prc_date': '2005/05/24'},
   {'kind_cd': 'gift', 'kind_nm': 'お祝い金', 'matrix_cd': 'income', 'account_dir': '1', 'memo': '親からもらったものなど', 'display_order': '17', 'prc_date': '2005/06/26'},
   {'kind_cd': 'sell', 'kind_nm': '物品売却', 'matrix_cd': 'income', 'account_dir': '1', 'memo': 'オークションその他', 'display_order': '18', 'prc_date': '2005/05/24'},
-  {'kind_cd': 'withdrow', 'kind_nm': '銀行引出', 'matrix_cd': 'income', 'account_dir': '1', 'memo': '', 'display_order': '19', 'prc_date': '2005/05/24'}
+  {'kind_cd': 'withdrow', 'kind_nm': '銀行引出', 'matrix_cd': 'income', 'account_dir': '1', 'memo': '', 'display_order': '19', 'prc_date': '2005/05/24'},
+  {'kind_cd': 'charge', 'kind_nm': 'チャージ', 'matrix_cd': 'charge', 'account_dir': '2', 'memo': '', 'display_order': '20', 'prc_date': '2019/12/07'}
 ]
 
 const _paymethodmst = [

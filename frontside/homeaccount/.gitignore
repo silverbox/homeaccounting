@@ -8,6 +8,7 @@ yarn-error.log*
 /test/e2e/reports/
 selenium-debug.log
 config/dev.env.js
+src/cognito/config.js
 
 # Editor directories and files
 .idea

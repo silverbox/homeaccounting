@@ -6,6 +6,10 @@ import Input from '@/components/Input'
 import List from '@/components/List'
 import Graph from '@/components/Graph'
 import Table from '@/components/Table'
+import cognito from '@/cognito'
+import Login from '@/components/Login'
+import Signup from '@/components/Signup'
+import Confirm from '@/components/Confirm'
 
 import axios from 'axios'
 import ElementUI from 'element-ui'
@@ -25,6 +29,24 @@ Vue.prototype.apienv = {baseendpoint: process.env.API_ENDPOINT_BASE, key: proces
 Vue.prototype.$masterdata = masterdata
 Vue.prototype.$myutils = myutils
 
+const requireAuth = (to, from, next) => {
+  cognito.isAuthenticated()
+    .then(session => {
+      next()
+    })
+    .catch(session => {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    })
+}
+
+const logout = (to, from, next) => {
+  cognito.logout()
+  next('/login')
+}
+
 console.log(process.env.NODE_ENV)
 
 export default new Router({
@@ -37,22 +59,43 @@ export default new Router({
     {
       path: '/input',
       name: 'Input',
-      component: Input
+      component: Input,
+      beforeEnter: requireAuth
     },
     {
       path: '/list',
       name: 'List',
-      component: List
+      component: List,
+      beforeEnter: requireAuth
     },
     {
       path: '/graph',
       name: 'Graph',
-      component: Graph
+      component: Graph,
+      beforeEnter: requireAuth
     },
     {
       path: '/table',
       name: 'Table',
       component: Table
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login
+    },
+    {
+      path: '/singup',
+      name: 'Signup',
+      component: Signup
+    },
+    {
+      path: '/confirm',
+      name: 'Confirm',
+      component: Confirm
+    },
+    { path: '/logout',
+      beforeEnter: logout
     }
   ]
 })
