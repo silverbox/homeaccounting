@@ -1,6 +1,25 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "DynamoDB for My Home Account"
+Parameters:
+  dynamodbDummyParam:
+    Type : Number
+    Default : 1
+    MinValue: 1
 Resources:
+  DDBTablemyhomeaccountaccountmethodmst:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: "account_method_mst"
+      AttributeDefinitions:
+        - AttributeName: "method_cd"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "method_cd"
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      Tags:
+        - Key: "Description"
+          Value: "payment method information"
   DDBTablemyhomeaccountaccountbalance:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -8,13 +27,17 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "tgt_date"
           AttributeType: "S"
+        - AttributeName: "method_cd"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "tgt_date"
           KeyType: HASH
+        - AttributeName: "method_cd"
+          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       Tags:
-        - Key: "Name"
-          Value: "balance information"
+        - Key: "Description"
+          Value: "balance information of each payment method"
   DDBTablemyhomeaccountaccountkindmst:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -27,7 +50,7 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
       Tags:
-        - Key: "Name"
+        - Key: "Description"
           Value: "slip kind information"
   DDBTablemyhomeaccountaccountslip:
     Type: "AWS::DynamoDB::Table"
@@ -45,5 +68,5 @@ Resources:
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       Tags:
-        - Key: "Name"
-          Value: "slip kind information"
+        - Key: "Description"
+          Value: "slip information"

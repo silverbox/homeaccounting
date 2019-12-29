@@ -31,7 +31,8 @@ Vue.prototype.$myutils = myutils
 
 const requireAuth = (to, from, next) => {
   cognito.isAuthenticated()
-    .then(session => {
+    .then(function (session) {
+      // console.log('isAuthenticated:' + session.getAccessToken().getJwtToken())
       next()
     })
     .catch(session => {

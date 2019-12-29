@@ -35,8 +35,26 @@
       </el-form-item>
     </el-form>
     <div class="dialog-footer">
-      <el-button type="primary" @click="onsubmit">登録</el-button>
+      <el-button type="primary" :loading="submiting" @click="onsubmit">登録</el-button>
     </div>
+    <p v-loading="balanceloading" class="balancetable">
+      <el-table
+        :data="balancelist"
+        style="width: 80%">
+        <el-table-column
+          prop="method_nm"
+          label="種類"
+          width="180"
+          align="center">
+        </el-table-column>
+        <el-table-column
+          prop="value_fmt"
+          label="金額"
+          width="100"
+          align="center">
+        </el-table-column>
+      </el-table>
+    </p>
   </div>
 </template>
 
@@ -49,7 +67,11 @@ export default {
       balance: 0,
       kindmst: this.$masterdata.kindmst,
       paymethodmst: this.$masterdata.paymethodmst,
-      slip: {}
+      submiting: false,
+      slip: {},
+      balanceloading: false,
+      balancedate: undefined,
+      balancelist: []
     }
   },
   mounted: function () {
@@ -58,13 +80,9 @@ export default {
   methods: {
     onsubmit: function () {
       console.log('slip-data1:' + this.slip.paymethod + ':' + this.slip.uuid)
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apienv.key,
-          'Authorization': 1
-        }
-      }
+      this.submiting = true
+      const config = this.$myutils.getBaseAxiosHeader(this.apienv.key)
+
       const slipdata = {
         'tgt_date': this.$myutils.getYYYYMMDDStr(this.slip.tgt_date),
         'kind_cd': this.slip.kind_cd,
@@ -80,18 +98,50 @@ export default {
           console.log(response.data)
           self.$message({message: '登録しました', type: 'success'})
           self.initData()
+          self.submiting = false
         }
-      )
+      ).catch(err => {
+        self.$message({message: err, type: 'error'})
+        self.submiting = false
+      })
     },
     initData: function () {
-      this.slip = {
+      var that = this
+      that.slip = {
         tgt_date: new Date(),
-        kind_cd: this.$masterdata.kindmst[0].kind_cd,
-        paymethod: this.$masterdata.paymethodmst[0].method_cd,
+        kind_cd: that.$masterdata.kindmst[0].kind_cd,
+        paymethod: that.$masterdata.paymethodmst[0].method_cd,
         value: 0,
         memo: '',
         uuid: ''
       }
+
+      const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
+      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
+      const prmstr = 'tgt_date=' + tgttodatestr
+      this.balanceloading = true
+      that.$axios.get(that.apienv.baseendpoint + 'balance?' + prmstr, config).then(
+        response => {
+          that.finload(that, response)
+          this.balanceloading = false
+        }
+      ).catch(err => {
+        that.$message({message: err, type: 'error'})
+        this.balanceloading = false
+      })
+    },
+    finload: function (that, response) {
+      var wkdatestr = ''
+      var wkbalancelist = []
+      for (var resdata of response.data) {
+        wkdatestr = that.$myutils.getLocalDateStr(resdata['tgt_date'])
+        var wkbalance = {}
+        wkbalance['method_nm'] = that.$masterdata.getMethodNm(resdata['method_cd'])
+        wkbalance['value_fmt'] = Number(resdata['value']).toLocaleString()
+        wkbalancelist.push(wkbalance)
+      }
+      that.balancedate = wkdatestr
+      that.balancelist = wkbalancelist
     }
   }
 }
@@ -101,5 +151,8 @@ export default {
 <style scoped>
 .inputform{
   padding : 20px;
+}
+.balancetable{
+  padding : 5px 0px 0px 10px;
 }
 </style>

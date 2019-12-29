@@ -107,14 +107,8 @@ export default {
       }
     },
     loadsub: function (that) {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': that.apienv.key,
-          'Authorization': 1
-        },
-        data: {}
-      }
+      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
+
       that.loading = true
       const tgttodatestr = that.$myutils.getYYYYMMDDStr(that.wkdate)
       that.wkdate.setDate(that.wkdate.getDate() + 1 - LOAD_DATE_CNT)
@@ -125,7 +119,9 @@ export default {
         response => {
           that.finload(that, response)
         }
-      )
+      ).catch(err => {
+        that.$message({message: err, type: 'error'})
+      })
     },
     finload: function (that, response) {
       for (var resdata of response.data) {

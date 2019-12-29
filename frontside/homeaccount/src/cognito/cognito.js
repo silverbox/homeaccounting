@@ -83,19 +83,19 @@ export default class Cognito {
     const authenticationData = { Username: username, Password: password }
     const authenticationDetails = new AuthenticationDetails(authenticationData)
     return new Promise((resolve, reject) => {
-      cognitoUser.authenticateUser(authenticationDetails, {
+      var callbacks = {
         onSuccess: (result) => {
-          // 実際にはクレデンシャルなどをここで取得する(今回は省略)
           resolve(result)
         },
         onFailure: (err) => {
           reject(err)
         },
         newPasswordRequired: (userAttributes, requiredAttributes) => {
-          var newPass = window.prompt('新しいパスワードを入力してください', '入力値は表示されます。別の人に見られていない事を確認してください')
-          cognitoUser.completeNewPasswordChallenge(newPass, {}, this)
+          var newPass = window.prompt('Please input your new Password', 'Your input will not be masked. please make sure there is no other person.')
+          cognitoUser.completeNewPasswordChallenge(newPass, {}, callbacks)
         }
-      })
+      }
+      cognitoUser.authenticateUser(authenticationDetails, callbacks)
     })
   }
 

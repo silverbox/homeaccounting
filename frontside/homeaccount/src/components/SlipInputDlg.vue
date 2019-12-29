@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="入力" :visible.sync="slipDialogVisible" class="slipinputdlg">
+  <el-dialog title="入力" :visible.sync="slipDialogVisible" class="slipinputdlg" v-loading="saving">
     <el-form ref="form" :model="slip" label-width="80px">
       <el-form-item label="日付">
         <el-date-picker v-model="slip.tgt_date_obj" type="date" placeholder="Pick a day" />
@@ -70,6 +70,7 @@ export default {
       kindmst: this.masterdateprm.kindmst,
       paymethodmst: this.masterdateprm.paymethodmst,
       slipDialogVisible: false,
+      saving: false,
       slip: {
         tgt_date_obj: new Date(),
         kind_cd: '',
@@ -79,7 +80,9 @@ export default {
         uuid: '',
         old_tgt_date: '',
         old_kind_cd: '',
-        old_uuid: ''
+        old_uuid: '',
+        old_method_cd: '',
+        old_value: ''
       }
     }
   },
@@ -94,13 +97,14 @@ export default {
     setSlipData: function (slipdata) {
       this.slip = slipdata
       // this.slip.tgt_date_obj = this.myutilsprm.getLocalDate(this.slip.tgt_date)
-      // this.slip.method_cd = this.slip.method_cd
       this.slip.old_tgt_date = this.slip.tgt_date
       this.slip.old_kind_cd = this.slip.kind_cd
       this.slip.old_uuid = this.slip.uuid
+      this.slip.old_method_cd = this.slip.method_cd
+      this.slip.old_value = this.slip.value
     },
     show: function () {
-      console.log('show:' + this.slip.old_kind_cd + ':' + this.slip.old_tgt_date)
+      // console.log('show:' + this.slip.old_kind_cd + ':' + this.slip.old_tgt_date)
       this.slipDialogVisible = true
     },
     ondelsubmit: function () {
@@ -110,7 +114,8 @@ export default {
       this.onsubmitsub('upd')
     },
     onsubmitsub: function (mode) {
-      console.log('slip-data1:' + this.slip.method_cd + ':' + this.slip.uuid)
+      // console.log('slip-data1:' + this.slip.method_cd + ':' + this.slip.uuid)
+      this.saving = true
       const config = {
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +132,9 @@ export default {
         'memo': this.slip.memo ? this.slip.memo : '',
         'old_tgt_date': this.slip.old_tgt_date,
         'old_kind_cd': this.slip.old_kind_cd,
-        'old_uuid': this.slip.old_uuid
+        'old_uuid': this.slip.old_uuid,
+        'old_method_cd': this.slip.old_method_cd,
+        'old_value': this.slip.old_value
       }
       if (mode === 'del') {
         slipdata['tgt_date'] = ''
@@ -140,11 +147,15 @@ export default {
         response => {
           self.slipDialogVisible = false
           self.$message({message: '登録しました', type: 'success'})
+          self.saving = false
           if (self.callbackprm !== undefined) {
             self.callbackprm(mode, slipdata)
           }
         }
-      )
+      ).catch(err => {
+        self.$message({message: err, type: 'error'})
+        self.saving = false
+      })
     }
   },
   destroyed: function () {

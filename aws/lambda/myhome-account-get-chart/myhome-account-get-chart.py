@@ -80,6 +80,8 @@ def lambda_handler(event, context):
             wkslip = {}
             wkslip['tgt_date'] = slip['tgt_date']
             wkslip['kind_cd'] = wkkindseq[0]
+            if wkslip['kind_cd'] not in kindmstcdmap.keys():
+                continue
             cdchkmap[wkkindseq[0]] = "true"
 
             wkkindmst = kindmstcdmap[wkslip['kind_cd']]

@@ -83,7 +83,7 @@ paths:
         200:
           description: "200 response"
           schema:
-            $ref: "#/definitions/Balance"
+            $ref: "#/definitions/BalanceList"
           headers:
             Access-Control-Allow-Headers:
               type: "string"
@@ -469,10 +469,17 @@ definitions:
     properties:
       tgt_date:
         type: "string"
+       method_cd:
+         type: "string"
+         example: "cash"
       value:
         type: "integer"
       memo:
         type: "string"
+   BalanceList:
+     type: "array"
+     items:
+       $ref: "#/definitions/Balance"
   KindMst:
     type: "object"
     properties:

@@ -30,9 +30,11 @@ export default {
     login () {
       this.$cognito.login(this.username, this.password)
         .then(result => {
-          this.$router.replace('/home')
+          this.$router.replace('/input')
         })
-        .then(err => {
+        .catch(err => {
+          var errmsg = (err.message || JSON.stringify(err))
+          this.$message({showClose: true, message: errmsg, type: 'error'})
           this.error = err
         })
     }

@@ -27,33 +27,27 @@ export default {
   methods: {
     loadgraph: function () {
       var that = this
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': that.apienv.key,
-          'Authorization': 1
-        },
-        data: {}
-      }
+      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
+
       that.loading = true
       const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
 
       const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_count=' + LOAD_DATE_CNT
-      console.log('loadgraph start:' + prmstr)
-      that.$axios.get(that.apienv.baseendpoint + 'chart?' + prmstr, config).then(
-        response => {
-          that.options = response.data['options']
-          const barcolors = palette('mpn65', response.data['chartdata']['datasets'].length).map((hex) => {
-            return '#' + hex
-          })
-          response.data['chartdata']['datasets'].forEach(function (value, index) {
-            value['backgroundColor'] = barcolors[index]
-          })
-          that.chartdata = response.data['chartdata']
+      that.$axios.get(that.apienv.baseendpoint + 'chart?' + prmstr, config).then(response => {
+        console.log('loadgraph response:' + prmstr)
+        that.options = response.data['options']
+        const barcolors = palette('mpn65', response.data['chartdata']['datasets'].length).map((hex) => {
+          return '#' + hex
+        })
+        response.data['chartdata']['datasets'].forEach(function (value, index) {
+          value['backgroundColor'] = barcolors[index]
+        })
+        that.chartdata = response.data['chartdata']
 
-          that.loaded = true
-        }
-      )
+        that.loaded = true
+      }).catch(err => {
+        that.$message({message: err, type: 'error'})
+      })
     }
   }
 }

@@ -10,6 +10,7 @@ def lambda_handler(event, context):
     balanceItem = {
         "tgt_date" : bodyParam['tgt_date'],
         "value" : bodyParam['value'],
+        "method_cd" : bodyParam['method_cd'],
         "memo" : bodyParam['memo']
     }
 
