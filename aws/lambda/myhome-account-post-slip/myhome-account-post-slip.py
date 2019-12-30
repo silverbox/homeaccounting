@@ -20,6 +20,7 @@ SAFECNT = 50
 ACCOUNT_DIR_CONSUME = '0'
 ACCOUNT_DIR_INCOME = '1'
 ACCOUNT_DIR_CHARGE = '2'
+JST_OFFSET_HOURS = 9
 
 def convert_dynamodata_to_map(dynamodatalist):
     retlist = []
@@ -36,47 +37,84 @@ def convert_dynamodata_to_map(dynamodatalist):
         retlist.append(onedata)
 
     return retlist
-##
-# tgtDate: the YYYYMMDD format DateString recalc start. base balance will be 1 day before of the date.
-#
-def get_last_balance(tgtDate):
-    SAFECNT = 50
-    date_to = dateutil.parser.parse(tgtDate) + datetime.timedelta(days=-1)
 
-    balanncetable = dynamodb.Table('account_balance')
-    wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(date_to.strftime("%Y%m%d")))
-    wkitems = wkres['Items']
+def get_jst_from_utc(utcdate):
+    return utcdate + datetime.timedelta(hours=JST_OFFSET_HOURS)
+    
+# ##
+# # tgtDate: the YYYYMMDD format DateString recalc start. base balance will be 1 day before of the date.
+# #
+# def get_last_balance(tgtDate):
+#     SAFECNT = 50
+#     date_to = dateutil.parser.parse(tgtDate) + datetime.timedelta(days=-1)
 
-    wkchk = 0
-    wkloop = date_to
-    while len(wkitems) == 0 and wkchk <= SAFECNT :
-        wkloop = wkloop + datetime.timedelta(days=-1)
-        wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
-        wkitems = wkres['Items']
-        SAFECNT += 1
+#     balanncetable = dynamodb.Table('account_balance')
+#     wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(date_to.strftime("%Y%m%d")))
+#     wkitems = wkres['Items']
 
-    balacemap = {}
-    for wk_balance in wkitems:
-        balacemap[wk_balance['method_cd']] = wk_balance['value']
+#     wkchk = 0
+#     wkloop = date_to
+#     while len(wkitems) == 0 and wkchk <= SAFECNT :
+#         wkloop = wkloop + datetime.timedelta(days=-1)
+#         wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
+#         wkitems = wkres['Items']
+#         SAFECNT += 1
 
-    logger.debug("get_last_balance: " + str(len(wkitems)) + ':' + wkloop.strftime("%Y%m%d"))
-    retitem = {}
-    retitem['balanceitemmap'] = balacemap
-    retitem['balancedate'] = wkloop
-    return retitem
+#     balacemap = {}
+#     for wk_balance in wkitems:
+#         balacemap[wk_balance['method_cd']] = wk_balance['value']
 
-def update_balance(tgtDate, balancemap):
-    balanncetable = dynamodb.Table('account_balance')
-    wkDateStr = tgtDate.strftime("%Y%m%d")
-    logger.debug("update_balance: " + wkDateStr)
-    with balanncetable.batch_writer() as batch:
-        for wk_method_cd in balancemap.keys():
-            balanceItem = {
-                "tgt_date" : wkDateStr,
-                "method_cd" : wk_method_cd,
-                "value" : balancemap[wk_method_cd]
-            }
-            batch.put_item(Item=balanceItem)
+#     logger.debug("get_last_balance: " + str(len(wkitems)) + ':' + wkloop.strftime("%Y%m%d"))
+#     retitem = {}
+#     retitem['balanceitemmap'] = balacemap
+#     retitem['balancedate'] = wkloop
+#     return retitem
+
+# def update_balance(tgtDate, balancemap):
+#     balanncetable = dynamodb.Table('account_balance')
+#     wkDateStr = tgtDate.strftime("%Y%m%d")
+#     logger.debug("update_balance: " + wkDateStr)
+#     with balanncetable.batch_writer() as batch:
+#         for wk_method_cd in balancemap.keys():
+#             balanceItem = {
+#                 "tgt_date" : wkDateStr,
+#                 "method_cd" : wk_method_cd,
+#                 "value" : balancemap[wk_method_cd]
+#             }
+#             batch.put_item(Item=balanceItem)
+
+# ##
+# # date_from: the YYYYMMDD format string recalc start. base balance will be 1 day before of the date.
+# #
+# def recalc_balance(date_from):
+#     basebalance = get_last_balance(date_from)
+#     new_date_from = basebalance['balancedate'] + datetime.timedelta(days=1)
+#     balancemap = basebalance['balanceitemmap']
+#     kindmstmap = get_kindmstmap()
+
+#     sliptable = dynamodb.Table('account_slip')
+#     dt_now = get_jst_from_utc(datetime.datetime.now())
+
+#     wkloop = new_date_from
+#     while str(wkloop) <= str(dt_now) :
+#         wkres = sliptable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
+#         for slip in wkres['Items']:
+#             wkkindseq = slip['kind_cd_seq'].split('_')
+#             wkkindcd = wkkindseq[0]
+#             wkmethodcd = slip['method_cd']
+#             wkkindmst = kindmstmap[wkkindcd]
+#             wkbalance = balancemap[wkmethodcd]
+#             logger.info("recalc_balance: " + str(Decimal(slip['value'])))
+
+#             if wkkindmst['account_dir'] == ACCOUNT_DIR_CHARGE:
+#                 balancemap['cash'] -= Decimal(slip['value'])
+#                 balancemap[wkmethodcd] += Decimal(slip['value'])
+#             elif wkkindmst['account_dir'] == ACCOUNT_DIR_INCOME:
+#                 balancemap[wkmethodcd] += Decimal(slip['value'])
+#             else:
+#                 balancemap[wkmethodcd] -= Decimal(slip['value'])
+#         update_balance(wkloop, balancemap)
+#         wkloop = wkloop + datetime.timedelta(days=1)
 
 def get_kindmstmap():
     # table_name = 'account_kind_mst'
@@ -110,39 +148,6 @@ def get_kindmstmap():
         kindmstmap[wk_kindmst['kind_cd']] = wk_kindmst
 
     return kindmstmap
-
-##
-# date_from: the YYYYMMDD format string recalc start. base balance will be 1 day before of the date.
-#
-def recalc_balance(date_from):
-    basebalance = get_last_balance(date_from)
-    new_date_from = basebalance['balancedate'] + datetime.timedelta(days=1)
-    balancemap = basebalance['balanceitemmap']
-    kindmstmap = get_kindmstmap()
-
-    sliptable = dynamodb.Table('account_slip')
-    dt_now = datetime.datetime.now()
-
-    wkloop = new_date_from
-    while str(wkloop) <= str(dt_now) :
-        wkres = sliptable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
-        for slip in wkres['Items']:
-            wkkindseq = slip['kind_cd_seq'].split('_')
-            wkkindcd = wkkindseq[0]
-            wkmethodcd = slip['method_cd']
-            wkkindmst = kindmstmap[wkkindcd]
-            wkbalance = balancemap[wkmethodcd]
-            logger.info("recalc_balance: " + str(Decimal(slip['value'])))
-
-            if wkkindmst['account_dir'] == ACCOUNT_DIR_CHARGE:
-                balancemap['cash'] -= Decimal(slip['value'])
-                balancemap[wkmethodcd] += Decimal(slip['value'])
-            elif wkkindmst['account_dir'] == ACCOUNT_DIR_INCOME:
-                balancemap[wkmethodcd] += Decimal(slip['value'])
-            else:
-                balancemap[wkmethodcd] -= Decimal(slip['value'])
-        update_balance(wkloop, balancemap)
-        wkloop = wkloop + datetime.timedelta(days=1)
 
 def get_memostr(bodyParam):
     memostr = bodyParam['memo']
@@ -283,7 +288,7 @@ def get_balance_transaction_items(recalctgt, bodyParam, kindmstmap):
             if wkkindmst['account_dir'] == ACCOUNT_DIR_CHARGE: 
                 target_methodlist.append('cash')
 
-    dt_now = datetime.datetime.now()
+    dt_now = get_jst_from_utc(datetime.datetime.now())
     date_from = dateutil.parser.parse(recalctgt)
     wkchk = 0
     wkloop = dt_now
