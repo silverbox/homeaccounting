@@ -6,7 +6,7 @@
         <el-button type="primary" plain @click="reload">Reload</el-button>
         <el-button type="success" plain @click="logout">Logout</el-button>
         <el-button type="info" plain @click="s3test">S3 test</el-button>
-        <el-button type="warning" plain>Warning</el-button>
+        <el-button type="warning" plain @click="download">Download</el-button>
         <el-button type="danger" plain>Danger</el-button>
       </el-row>
     </div>
@@ -14,7 +14,8 @@
     <div class="sample">
       <h2>Text Button</h2>
       <el-row>
-        <el-date-picker v-model="tgtdate" type="date" placeholder="Pick a day" />
+        <el-date-picker v-model="tgtdate_from" type="date" placeholder="Pick a day" />
+        <el-date-picker v-model="tgtdate_to" type="date" placeholder="Pick a day" />
         <el-input v-model="balance" />
       </el-row>
     </div>
@@ -34,7 +35,8 @@ export default {
   data () {
     return {
       balance: 2,
-      tgtdate: new Date()
+      tgtdate_from: new Date(),
+      tgtdate_to: new Date()
     }
   },
   methods: {
@@ -104,6 +106,55 @@ export default {
           })
         }
       })
+    },
+    download: function () {
+      const cognitoUser = this.$cognito.userPool.getCurrentUser()
+      var that = this
+      cognitoUser.getSession((err, session) => {
+        if (!err && session.isValid()) {
+          const itoken = session.getIdToken().getJwtToken()
+          // Initialize the Amazon Cognito credentials provider
+          AWS.config.region = awsconfig.Region
+          AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: awsconfig.IdentityPoolId,
+            Logins: {
+              [PROVIDER_KEY]: itoken
+            }
+          })
+          var identityId = AWS.config.credentials.identityId
+
+          const config = that.$myutils.getBaseAxiosHeader(that.apienv.key, itoken)
+
+          const tgttodatestr = that.$myutils.getYYYYMMDDStr(that.tgtdate_to)
+          const tgtfromdatestr = that.$myutils.getYYYYMMDDStr(that.tgtdate_from)
+
+          const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_from=' + tgtfromdatestr + '&identityid=' + identityId
+          that.$axios.get(that.apienv.baseendpoint + 'download?' + prmstr, config).then(
+            response => {
+              console.log('response : ', response.data)
+              var s3 = new AWS.S3({
+                params: { Bucket: S3_USERBACKETNAME }
+              })
+              var getUrlparams = {
+                // バケット名
+                Bucket: S3_USERBACKETNAME,
+                // S3に格納済みのファイル名
+                Key: 'cognito/myhome-account/' + identityId + '/' + response.data,
+                // 期限(秒数)
+                Expires: 900
+              }
+              // URL発行
+              s3.getSignedUrl('getObject', getUrlparams, that.execdownload)
+            }
+          ).catch(err => {
+            that.$message({message: err, type: 'error'})
+          })
+        }
+      })
+    },
+    execdownload: function (dummy, url) {
+      console.log('期限付きURL:', url)
+      location.href = url
     },
     logout: function () {
       cognito.logout()

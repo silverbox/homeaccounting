@@ -55,6 +55,15 @@ Parameters:
          responseData.Value.push(event.ResourceProperties.AppendedItem);
          response.send(event, context, response.SUCCESS, responseData);
       };
+  myhomeaccountgetdownloadContents:
+    Type: String
+    Default: |
+      var response = require('cfn-response');
+      exports.handler = function(event, context) {
+         var responseData = {Value: event.ResourceProperties.List};
+         responseData.Value.push(event.ResourceProperties.AppendedItem);
+         response.send(event, context, response.SUCCESS, responseData);
+      };
 #  LambdaSubnetIds:
 #    Description: Subnet ids for lambda VPC config
 #    Type: String
@@ -90,6 +99,12 @@ Resources:
               Action:
                 - cloudwatch:GetMetricStatistics
               Resource: "*"
+            - Effect: Allow
+              Action:
+                - "s3:*"
+              Resource:
+                - "arn:aws:s3:::myapp-userdata"
+                - "arn:aws:s3:::myapp-userdata/*"
             - Effect: Allow
               Action:
                 - dynamodb:GetRecords
@@ -269,6 +284,32 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties: 
       LogGroupName: /aws/lambda/myhome-account-get-chart
+      RetentionInDays: "30"
+  LAMBDAmyhomeaccountmyhomeaccountgetdownload:
+    Type: "AWS::Lambda::Function"
+    Properties: 
+      FunctionName: "myhome-account-get-download"
+      Handler: "myhome-account-get-download.lambda_handler"
+      Runtime: "python3.7"
+      Timeout: "5"
+      Role: !GetAtt Rolemyhomeaccount.Arn
+#      VpcConfig:
+#        SecurityGroupIds:
+#          - !Ref LambdaSecurityGroupIds
+#        SubnetIds:
+#          - !Ref LambdaSubnetIds
+      Code: 
+        ZipFile: !Ref myhomeaccountgetdownloadContents
+      Tags:
+        - Key: Name
+          Value: "myhome-account-myhome-account-get-download"
+
+        - Key: Description
+          Value: "Create zip file and get S3 Url"
+  LOGGROUPmyhomeaccountmyhomeaccountgetdownload:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: /aws/lambda/myhome-account-get-download
       RetentionInDays: "30"
   APIGatewaymyhomeaccount:
     Type: AWS::ApiGateway::RestApi

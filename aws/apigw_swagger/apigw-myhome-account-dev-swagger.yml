@@ -449,6 +449,92 @@ paths:
         requestTemplates:
           "application/json" : "{\"statusCode\": 200}"
         type: "mock"
+  /api/download:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tgt_date_from"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_to"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_count"
+        description: "use with tgt_date_from or tgt_date_to"
+        in: "query"
+        required: false
+        type: "integer"
+      - name: "identityid"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/S3Url"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-download/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{ \"tgt_date_from\": \"$input.params('tgt_date_from')\", \"tgt_date_to\": \"$input.params('tgt_date_to')\", \"tgt_date_count\": \"$input.params('tgt_date_count')\", \"identityid\": \"$input.params('identityid')\" }"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
 securityDefinitions:
   api_key:
     type: "apiKey"
@@ -469,17 +555,16 @@ definitions:
     properties:
       tgt_date:
         type: "string"
-       method_cd:
-         type: "string"
-         example: "cash"
+      method_cd:
+        type: "string"
       value:
         type: "integer"
       memo:
         type: "string"
-   BalanceList:
-     type: "array"
-     items:
-       $ref: "#/definitions/Balance"
+  BalanceList:
+    type: "array"
+    items:
+      $ref: "#/definitions/Balance"
   KindMst:
     type: "object"
     properties:
@@ -578,3 +663,6 @@ definitions:
           type: object
       backgroundColor:
         type: object
+  S3Url:
+    type: "string"
+    title: "Url for S3 download"
