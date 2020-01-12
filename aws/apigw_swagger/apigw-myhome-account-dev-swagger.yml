@@ -99,7 +99,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-balance/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-balance/invocations"
         responses:
           default:
             statusCode: "200"
@@ -169,7 +169,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-post-balance/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-post-balance/invocations"
         responses:
           default:
             statusCode: "200"
@@ -205,7 +205,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-kindmst/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-kindmst/invocations"
         responses:
           default:
             statusCode: "200"
@@ -286,7 +286,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-slip/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-slip/invocations"
         responses:
           default:
             statusCode: "200"
@@ -356,7 +356,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-post-slip/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-post-slip/invocations"
         responses:
           default:
             statusCode: "200"
@@ -410,7 +410,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-chart/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-chart/invocations"
         responses:
           default:
             statusCode: "200"
@@ -497,7 +497,7 @@ paths:
         - api_key: []
         - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-download/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-download/invocations"
         responses:
           default:
             statusCode: "200"
@@ -555,7 +555,7 @@ securityDefinitions:
     x-amazon-apigateway-authorizer:
       type: cognito_user_pools
       providerARNs:
-      - "arn:aws:cognito-idp:ap-northeast-1:055389889595:userpool/ap-northeast-1_ul0ys5yvU"
+      - "arn:aws:cognito-idp:ap-northeast-1:999999999999:userpool/ap-northeast-1_hogehoge"
       identityValidationExpression: "[^\\.]+\\.[^\\.]+\\.[^\\.]"
 definitions:
   Empty:
