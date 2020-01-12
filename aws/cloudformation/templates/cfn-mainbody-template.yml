@@ -50,7 +50,7 @@ Resources:
                 - dynamodb:PutItem
                 - dynamodb:UpdateItem
               Resource:
-                - "arn:aws:dynamodb:ap-northeast-1:055389889595:table/account_*"
+                - "arn:aws:dynamodb:ap-northeast-1:999999999999:table/account_*"
             - Effect: Allow
               Action:
                 - ec2:CreateNetworkInterface
@@ -61,7 +61,7 @@ Resources:
               Action:
                 - sns:Publish
               Resource:
-                - "arn:aws:sns:ap-northeast-1:055389889595:myhome-account-failure-notification"
+                - "arn:aws:sns:ap-northeast-1:999999999999:myhome-account-failure-notification"
   LAMBDAmyhomeaccountmyhomeaccountgetbalance:
     Type: "AWS::Lambda::Function"
     Properties: 
