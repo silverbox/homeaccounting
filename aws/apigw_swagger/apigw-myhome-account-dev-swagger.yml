@@ -47,7 +47,7 @@ paths:
       security:
       - api_key: []
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-balance/invocations"
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-balance/invocations"
         responses:
           default:
             statusCode: "200"
