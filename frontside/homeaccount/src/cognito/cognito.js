@@ -126,4 +126,52 @@ export default class Cognito {
       })
     })
   }
+
+  /**
+   * トークン再取得してAjax実行
+   */
+  callGetApi (axios, url) {
+    const that = this
+    return new Promise((resolve, reject) => {
+      that.isAuthenticated().then(function (session) {
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': session.getIdToken().getJwtToken()
+          },
+          data: {}
+        }
+        // console.log('isAuthenticatedGet:' + session.getIdToken().getJwtToken())
+        return axios.get(url, config)
+      }).then(function (response) {
+        resolve(response)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+
+  /**
+   * トークン再取得してAjax実行
+   */
+  callPostApi (axios, url, data) {
+    const that = this
+    return new Promise((resolve, reject) => {
+      that.isAuthenticated().then(function (session) {
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': session.getIdToken().getJwtToken()
+          },
+          data: {}
+        }
+        // console.log('isAuthenticatedPost:' + session.getIdToken().getJwtToken())
+        return axios.post(url, data, config)
+      }).then(function (response) {
+        resolve(response)
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
 }

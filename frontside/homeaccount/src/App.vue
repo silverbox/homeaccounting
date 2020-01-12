@@ -10,15 +10,6 @@
       <router-link tag="el-menu-item" id="el-menu-nav" to="/graph" index="3">Graph</router-link>
       <router-link tag="el-menu-item" id="el-menu-nav" to="/table" index="4">Table</router-link>
     </el-menu>
-  <!--
-    <el-tabs v-model="activeName" @tab-click="handleTabClick">
-      <el-tab-pane label="Input" name="input">Input</el-tab-pane>
-      <el-tab-pane label="List" name="list">List</el-tab-pane>
-      <el-tab-pane label="Graph" name="graph">Graph</el-tab-pane>
-      <el-tab-pane label="Table" name="table">Table</el-tab-pane>
-    </el-tabs>
-  <img src="./assets/logo.png">
-   -->
     <router-view/>
   </div>
 </template>

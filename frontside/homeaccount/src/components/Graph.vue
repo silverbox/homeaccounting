@@ -55,13 +55,12 @@ export default {
   methods: {
     loadgraph: function () {
       var that = this
-      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
 
       that.loading = true
       const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
 
       const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_count=' + LOAD_DATE_CNT
-      that.$axios.get(that.apienv.baseendpoint + 'chart?' + prmstr, config).then(response => {
+      this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'chart?' + prmstr).then(response => {
         console.log('loadgraph response:' + prmstr)
         that.options = response.data['options']
         that.options['tooltips'] = TOOLTIPOPTION

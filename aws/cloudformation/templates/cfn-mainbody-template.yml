@@ -135,7 +135,7 @@ Resources:
       FunctionName: "myhome-account-get-balance"
       Handler: "myhome-account-get-balance.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -161,7 +161,7 @@ Resources:
       FunctionName: "myhome-account-get-kindmst"
       Handler: "myhome-account-get-kindmst.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -187,7 +187,7 @@ Resources:
       FunctionName: "myhome-account-get-slip"
       Handler: "myhome-account-get-slip.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -213,7 +213,7 @@ Resources:
       FunctionName: "myhome-account-post-balance"
       Handler: "myhome-account-post-balance.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -239,7 +239,7 @@ Resources:
       FunctionName: "myhome-account-post-slip"
       Handler: "myhome-account-post-slip.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -265,7 +265,7 @@ Resources:
       FunctionName: "myhome-account-get-chart"
       Handler: "myhome-account-get-chart.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:
@@ -291,7 +291,7 @@ Resources:
       FunctionName: "myhome-account-get-download"
       Handler: "myhome-account-get-download.lambda_handler"
       Runtime: "python3.7"
-      Timeout: "5"
+      Timeout: "60"
       Role: !GetAtt Rolemyhomeaccount.Arn
 #      VpcConfig:
 #        SecurityGroupIds:

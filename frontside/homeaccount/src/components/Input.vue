@@ -81,7 +81,6 @@ export default {
     onsubmit: function () {
       console.log('slip-data1:' + this.slip.paymethod + ':' + this.slip.uuid)
       this.submiting = true
-      const config = this.$myutils.getBaseAxiosHeader(this.apienv.key)
 
       const slipdata = {
         'tgt_date': this.$myutils.getYYYYMMDDStr(this.slip.tgt_date),
@@ -93,7 +92,7 @@ export default {
       }
 
       var self = this
-      this.$axios.post(this.apienv.baseendpoint + 'slip', slipdata, config).then(
+      this.$cognito.callPostApi(this.$axios, this.apienv.baseendpoint + 'slip', slipdata).then(
         response => {
           console.log(response.data)
           self.$message({message: '登録しました', type: 'success'})
@@ -107,6 +106,8 @@ export default {
     },
     initData: function () {
       var that = this
+
+      // init data
       that.slip = {
         tgt_date: new Date(),
         kind_cd: that.$masterdata.kindmst[0].kind_cd,
@@ -116,11 +117,11 @@ export default {
         uuid: ''
       }
 
+      // get balance data
       const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
-      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
       const prmstr = 'tgt_date=' + tgttodatestr
       this.balanceloading = true
-      that.$axios.get(that.apienv.baseendpoint + 'balance?' + prmstr, config).then(
+      this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'balance?' + prmstr).then(
         response => {
           that.finload(that, response)
           this.balanceloading = false

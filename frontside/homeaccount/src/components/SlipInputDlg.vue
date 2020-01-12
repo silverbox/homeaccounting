@@ -51,6 +51,10 @@ export default {
       type: Element,
       require: true
     },
+    cognitoprm: {
+      type: Object,
+      require: true
+    },
     myutilsprm: {
       type: Object,
       require: true
@@ -87,7 +91,7 @@ export default {
     }
   },
   mounted: function () {
-    console.log('mounted:' + this.slip['uuid'])
+    // console.log('mounted:' + this.slip['uuid'])
     this.parent.appendChild(this.$el)
   },
   updated: function () {
@@ -116,13 +120,7 @@ export default {
     onsubmitsub: function (mode) {
       // console.log('slip-data1:' + this.slip.method_cd + ':' + this.slip.uuid)
       this.saving = true
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apienv.key,
-          'Authorization': 1
-        }
-      }
+
       const slipdata = {
         'tgt_date': this.myutilsprm.getYYYYMMDDStr(this.slip.tgt_date_obj),
         'kind_cd': this.slip.kind_cd,
@@ -142,19 +140,19 @@ export default {
         slipdata['uuid'] = ''
       }
 
-      var self = this
-      this.$axios.post(this.apienv.baseendpoint + 'slip', slipdata, config).then(
+      var that = this
+      this.cognitoprm.callPostApi(this.$axios, this.apienv.baseendpoint + 'slip', slipdata).then(
         response => {
-          self.slipDialogVisible = false
-          self.$message({message: '登録しました', type: 'success'})
-          self.saving = false
-          if (self.callbackprm !== undefined) {
-            self.callbackprm(mode, slipdata)
+          that.slipDialogVisible = false
+          that.$message({message: '登録しました', type: 'success'})
+          that.saving = false
+          if (that.callbackprm !== undefined) {
+            that.callbackprm(mode, slipdata)
           }
         }
       ).catch(err => {
-        self.$message({message: err, type: 'error'})
-        self.saving = false
+        that.$message({message: err, type: 'error'})
+        that.saving = false
       })
     }
   },

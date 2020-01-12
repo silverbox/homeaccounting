@@ -60,6 +60,7 @@ export default {
     this.inputDlg = new SlipInputDlgConstructor({
       propsData: {
         parent: this.$el,
+        cognitoprm: this.$cognito,
         myutilsprm: this.$myutils,
         masterdateprm: this.$masterdata,
         callbackprm: this.dlgCloseCallback
@@ -107,15 +108,13 @@ export default {
       }
     },
     loadsub: function (that) {
-      const config = that.$myutils.getBaseAxiosHeader(that.apienv.key)
-
       that.loading = true
       const tgttodatestr = that.$myutils.getYYYYMMDDStr(that.wkdate)
       that.wkdate.setDate(that.wkdate.getDate() + 1 - LOAD_DATE_CNT)
       const tgtfromdatestr = that.$myutils.getYYYYMMDDStr(that.wkdate)
 
       const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_from=' + tgtfromdatestr
-      that.$axios.get(that.apienv.baseendpoint + 'slip?' + prmstr, config).then(
+      that.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'slip?' + prmstr).then(
         response => {
           that.finload(that, response)
         }

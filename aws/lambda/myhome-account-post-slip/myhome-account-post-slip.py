@@ -25,8 +25,10 @@ JST_OFFSET_HOURS = 9
 def convert_dynamodata_to_map(dynamodatalist):
     retlist = []
     for dynamodata in dynamodatalist:
-        onedata = {}
+        if 'Item' not in dynamodata:
+            continue
         wkitem = dynamodata['Item']
+        onedata = {}
         for key in wkitem.keys():
             valobj = wkitem[key]
             for typkey in valobj.keys():
@@ -40,81 +42,6 @@ def convert_dynamodata_to_map(dynamodatalist):
 
 def get_jst_from_utc(utcdate):
     return utcdate + datetime.timedelta(hours=JST_OFFSET_HOURS)
-    
-# ##
-# # tgtDate: the YYYYMMDD format DateString recalc start. base balance will be 1 day before of the date.
-# #
-# def get_last_balance(tgtDate):
-#     SAFECNT = 50
-#     date_to = dateutil.parser.parse(tgtDate) + datetime.timedelta(days=-1)
-
-#     balanncetable = dynamodb.Table('account_balance')
-#     wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(date_to.strftime("%Y%m%d")))
-#     wkitems = wkres['Items']
-
-#     wkchk = 0
-#     wkloop = date_to
-#     while len(wkitems) == 0 and wkchk <= SAFECNT :
-#         wkloop = wkloop + datetime.timedelta(days=-1)
-#         wkres = balanncetable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
-#         wkitems = wkres['Items']
-#         SAFECNT += 1
-
-#     balacemap = {}
-#     for wk_balance in wkitems:
-#         balacemap[wk_balance['method_cd']] = wk_balance['value']
-
-#     logger.debug("get_last_balance: " + str(len(wkitems)) + ':' + wkloop.strftime("%Y%m%d"))
-#     retitem = {}
-#     retitem['balanceitemmap'] = balacemap
-#     retitem['balancedate'] = wkloop
-#     return retitem
-
-# def update_balance(tgtDate, balancemap):
-#     balanncetable = dynamodb.Table('account_balance')
-#     wkDateStr = tgtDate.strftime("%Y%m%d")
-#     logger.debug("update_balance: " + wkDateStr)
-#     with balanncetable.batch_writer() as batch:
-#         for wk_method_cd in balancemap.keys():
-#             balanceItem = {
-#                 "tgt_date" : wkDateStr,
-#                 "method_cd" : wk_method_cd,
-#                 "value" : balancemap[wk_method_cd]
-#             }
-#             batch.put_item(Item=balanceItem)
-
-# ##
-# # date_from: the YYYYMMDD format string recalc start. base balance will be 1 day before of the date.
-# #
-# def recalc_balance(date_from):
-#     basebalance = get_last_balance(date_from)
-#     new_date_from = basebalance['balancedate'] + datetime.timedelta(days=1)
-#     balancemap = basebalance['balanceitemmap']
-#     kindmstmap = get_kindmstmap()
-
-#     sliptable = dynamodb.Table('account_slip')
-#     dt_now = get_jst_from_utc(datetime.datetime.now())
-
-#     wkloop = new_date_from
-#     while str(wkloop) <= str(dt_now) :
-#         wkres = sliptable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
-#         for slip in wkres['Items']:
-#             wkkindseq = slip['kind_cd_seq'].split('_')
-#             wkkindcd = wkkindseq[0]
-#             wkmethodcd = slip['method_cd']
-#             wkkindmst = kindmstmap[wkkindcd]
-#             wkbalance = balancemap[wkmethodcd]
-#             logger.info("recalc_balance: " + str(Decimal(slip['value'])))
-
-#             if wkkindmst['account_dir'] == ACCOUNT_DIR_CHARGE:
-#                 balancemap['cash'] -= Decimal(slip['value'])
-#                 balancemap[wkmethodcd] += Decimal(slip['value'])
-#             elif wkkindmst['account_dir'] == ACCOUNT_DIR_INCOME:
-#                 balancemap[wkmethodcd] += Decimal(slip['value'])
-#             else:
-#                 balancemap[wkmethodcd] -= Decimal(slip['value'])
-#         update_balance(wkloop, balancemap)
-#         wkloop = wkloop + datetime.timedelta(days=1)
 
 def get_kindmstmap():
     # table_name = 'account_kind_mst'
@@ -295,13 +222,13 @@ def get_balance_transaction_items(recalctgt, bodyParam, kindmstmap):
     wkloopstr = wkloop.strftime("%Y%m%d")
     target_datelist = []
     while recalctgt <= wkloopstr and wkchk <= SAFECNT :
-        logger.info("get_balance_transaction_items3:" + recalctgt + ':' + wkloopstr)
+        # logger.info("get_balance_transaction_items3:" + recalctgt + ':' + wkloopstr)
         target_datelist.append(wkloopstr)
         wkloop = wkloop + datetime.timedelta(days=-1)
         wkloopstr = wkloop.strftime("%Y%m%d")
         wkchk += 1
 
-    logger.info("get_balance_transaction_items4:" + str(len(target_methodlist)))
+    # logger.info("get_balance_transaction_items4:" + str(len(target_methodlist)))
 
     ret_tritemlist = []
     for tgtdate in target_datelist:
@@ -400,9 +327,6 @@ def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
     return ret_tritemlist
 
 def lambda_handler(event, context):
-    MODE_INS = 'ins'
-    MODE_UPD = 'upd'
-    MODE_DEL = 'del'
 
     #bodyParam = event['body']  # for lamda test directly
     bodyParam = json.loads(event['body'])
@@ -418,16 +342,13 @@ def lambda_handler(event, context):
     recalctgt = bodyParam['tgt_date']
     tran_items = []
     if bodyParam['tgt_date'] == '':
-        mode = MODE_DEL
         recalctgt = bodyParam['old_tgt_date']
         tran_items.extend(get_del_tr_slipitems(bodyParam))
     elif 'old_tgt_date' in bodyParam:
-        mode = MODE_UPD
         if bodyParam['old_tgt_date'] < recalctgt:
             recalctgt = bodyParam['old_tgt_date']
         tran_items.extend(get_upd_tr_slipitems(bodyParam))
     else:
-        mode = MODE_INS
         tran_items.extend(get_ins_tr_slipitems(bodyParam))
 
     logger.info("tran_items size-slip: " + str(len(tran_items)))
@@ -439,8 +360,8 @@ def lambda_handler(event, context):
     balance_datalist = convert_dynamodata_to_map(balance_get_response['Responses'])
 
     tran_items.extend(get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap))
-    logger.info("tran_items size-total: " + str(len(tran_items)))
-    logger.info("tran_items body: " + json.dumps(tran_items, indent=0))
+    # logger.info("tran_items size-total: " + str(len(tran_items)))
+    # logger.info("tran_items body: " + json.dumps(tran_items, indent=0))
 
     response = client.transact_write_items(
         ReturnConsumedCapacity='INDEXES',

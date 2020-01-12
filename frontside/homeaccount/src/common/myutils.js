@@ -22,19 +22,5 @@ export default {
     var mm = Number(yyyyMMddStr.substr(4, 2)) - 1
     var dd = Number(yyyyMMddStr.substr(6, 2))
     return new Date(yy, mm, dd)
-  },
-  getBaseAxiosHeader: function (key, token) {
-    var wktoken = token
-    if (token === undefined) {
-      wktoken = 1
-    }
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'Authorization': wktoken
-      },
-      data: {}
-    }
   }
 }

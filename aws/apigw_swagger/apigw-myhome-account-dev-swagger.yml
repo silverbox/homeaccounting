@@ -97,6 +97,7 @@ paths:
             $ref: "#/definitions/Empty"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-balance/invocations"
         responses:
@@ -166,6 +167,7 @@ paths:
               type: "string"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-post-balance/invocations"
         responses:
@@ -201,6 +203,7 @@ paths:
             $ref: "#/definitions/Empty"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-kindmst/invocations"
         responses:
@@ -281,6 +284,7 @@ paths:
             $ref: "#/definitions/Empty"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-slip/invocations"
         responses:
@@ -350,6 +354,7 @@ paths:
               type: "string"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-post-slip/invocations"
         responses:
@@ -403,6 +408,7 @@ paths:
             $ref: "#/definitions/Empty"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-chart/invocations"
         responses:
@@ -489,6 +495,7 @@ paths:
             $ref: "#/definitions/Empty"
       security:
         - api_key: []
+        - myhomeAccountAuthorizer: []
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:055389889595:function:myhome-account-get-download/invocations"
         responses:
@@ -540,6 +547,16 @@ securityDefinitions:
     type: "apiKey"
     name: "x-api-key"
     in: "header"
+  myhomeAccountAuthorizer:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "cognito_user_pools"
+    x-amazon-apigateway-authorizer:
+      type: cognito_user_pools
+      providerARNs:
+      - "arn:aws:cognito-idp:ap-northeast-1:055389889595:userpool/ap-northeast-1_ul0ys5yvU"
+      identityValidationExpression: "[^\\.]+\\.[^\\.]+\\.[^\\.]"
 definitions:
   Empty:
     type: "object"

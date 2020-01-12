@@ -1,20 +1,14 @@
 <template>
-  <div class="login">
+  <el-form @submit.prevent="login" label-width="100px" class="login">
     <h2>ログイン</h2>
-    <form @submit.prevent="login">
-      <div>
-        ユーザー名:
-        <input type="text" placeholder="username" v-model="username" required>
-      </div>
-      <div>
-        パスワード:
-        <input type="password" placeholder="password" v-model="password" required>
-      </div>
-      <button>ログイン</button>
-    </form>
-    <router-link to="/confirm">確認コード入力</router-link>
-    <router-link to="/singup">ユーザー登録</router-link>
-  </div>
+    <el-form-item label="ユーザー名">
+      <el-input v-model="username" />
+    </el-form-item>
+    <el-form-item label="パスワード">
+      <el-input v-model="password" show-password />
+    </el-form-item>
+    <el-button type="warning" :plain="true" @click="login">ログイン</el-button>
+  </el-form>
 </template>
 
 <script>
@@ -41,3 +35,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.login{
+  padding : 20px;
+}
+</style>

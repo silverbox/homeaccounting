@@ -25,7 +25,7 @@
 <script>
 import AWS from 'aws-sdk'
 import awsconfig from '../cognito/config'
-import cognito from '@/cognito'
+// import cognito from '@/cognito'
 
 const S3_USERBACKETNAME = 'myapp-userdata'
 const PROVIDER_KEY = 'cognito-idp.' + awsconfig.Region + '.amazonaws.com/' + awsconfig.UserPoolId
@@ -34,7 +34,7 @@ export default {
   name: 'Graph',
   data () {
     return {
-      balance: 2,
+      balance: 4,
       tgtdate_from: new Date(),
       tgtdate_to: new Date()
     }
@@ -43,16 +43,8 @@ export default {
     reload: function () {
       console.log(this.tgtdate)
       console.log(this.apienv.baseendpoint)
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apienv.key,
-          'Authorization': 1
-        },
-        data: {}
-      }
 
-      this.$axios.get(this.apienv.baseendpoint + 'balance?tgt_date=20190831', config).then(
+      this.$cognito.callGetApi(this.$axios, this.apienv.baseendpoint + 'balance?tgt_date=20190831').then(
         response => {
           console.log(response.data)
           /* this.tableData3 = response.data; */
@@ -123,13 +115,11 @@ export default {
           })
           var identityId = AWS.config.credentials.identityId
 
-          const config = that.$myutils.getBaseAxiosHeader(that.apienv.key, itoken)
-
           const tgttodatestr = that.$myutils.getYYYYMMDDStr(that.tgtdate_to)
           const tgtfromdatestr = that.$myutils.getYYYYMMDDStr(that.tgtdate_from)
 
           const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_from=' + tgtfromdatestr + '&identityid=' + identityId
-          that.$axios.get(that.apienv.baseendpoint + 'download?' + prmstr, config).then(
+          this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'download?' + prmstr).then(
             response => {
               console.log('response : ', response.data)
               var s3 = new AWS.S3({
@@ -153,11 +143,10 @@ export default {
       })
     },
     execdownload: function (dummy, url) {
-      console.log('期限付きURL:', url)
       location.href = url
     },
     logout: function () {
-      cognito.logout()
+      this.$cognito.logout()
     }
   }
 }
