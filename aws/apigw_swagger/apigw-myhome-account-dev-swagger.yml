@@ -1,0 +1,685 @@
+---
+swagger: "2.0"
+info:
+  version: "apigw-myhome-account"
+  title: "apigw-myhome-account"
+host: "dummy.execute-api.ap-northeast-1.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /api/health:
+    get:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Health"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          200:
+            statusCode: "200"
+            responseTemplates:
+              application/json: "#set($inputRoot = $input.path('$'))\n{\n  \"status\"\
+                \ : \"Health OK\"\n}"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_templates"
+        type: "mock"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+  /api/balance:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tgt_date"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/BalanceList"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-balance/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{ \"tgt_date\": \"$input.params('tgt_date')\" }"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+    post:
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Balance"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-post-balance/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws_proxy
+  /api/kindmst:
+    get:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/KindMstList"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-kindmst/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws_proxy
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+  /api/slip:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tgt_date_from"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_to"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_count"
+        description: "use with tgt_date_from or tgt_date_to"
+        in: "query"
+        required: false
+        type: "integer"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/SlipList"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-slip/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{ \"tgt_date_from\": \"$input.params('tgt_date_from')\", \"tgt_date_to\": \"$input.params('tgt_date_to')\", \"tgt_date_count\": \"$input.params('tgt_date_count')\" }"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+    post:
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Slip"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-post-slip/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws_proxy
+  /api/chart:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tgt_date_from"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_to"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_count"
+        description: "use with tgt_date_from or tgt_date_to"
+        in: "query"
+        required: false
+        type: "integer"
+      - name: "type"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/ChartData"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-chart/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{ \"tgt_date_from\": \"$input.params('tgt_date_from')\", \"tgt_date_to\": \"$input.params('tgt_date_to')\", \"tgt_date_count\": \"$input.params('tgt_date_count')\", \"type\": \"$input.params('type')\" }"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+  /api/download:
+    get:
+      produces:
+      - "application/json"
+      parameters:
+      - name: "tgt_date_from"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_to"
+        in: "query"
+        required: false
+        type: "string"
+      - name: "tgt_date_count"
+        description: "use with tgt_date_from or tgt_date_to"
+        in: "query"
+        required: false
+        type: "integer"
+      - name: "identityid"
+        in: "query"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/S3Url"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+        500:
+          description: "Internal Error."
+          schema:
+            $ref: "#/definitions/Empty"
+      security:
+        - api_key: []
+        - myhomeAccountAuthorizer: []
+      x-amazon-apigateway-integration:
+        uri: "arn:aws:apigateway:ap-northeast-1:lambda:path/2015-03-31/functions/arn:aws:lambda:ap-northeast-1:999999999999:function:myhome-account-get-download/invocations"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+          .+:
+            statusCode: "500"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{ \"tgt_date_from\": \"$input.params('tgt_date_from')\", \"tgt_date_to\": \"$input.params('tgt_date_to')\", \"tgt_date_count\": \"$input.params('tgt_date_count')\", \"identityid\": \"$input.params('identityid')\" }"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: aws
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Headers:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Origin:
+              type: "string"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers : "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods : "'GET,OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin : "'http://localhost:8080'"
+        passthroughBehavior: "when_no_templates"
+        requestTemplates:
+          "application/json" : "{\"statusCode\": 200}"
+        type: "mock"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "x-api-key"
+    in: "header"
+  myhomeAccountAuthorizer:
+    type: "apiKey"
+    name: "Authorization"
+    in: "header"
+    x-amazon-apigateway-authtype: "cognito_user_pools"
+    x-amazon-apigateway-authorizer:
+      type: cognito_user_pools
+      providerARNs:
+      - "arn:aws:cognito-idp:ap-northeast-1:999999999999:userpool/ap-northeast-1_hogehoge"
+      identityValidationExpression: "[^\\.]+\\.[^\\.]+\\.[^\\.]"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+  Health:
+    type: "object"
+    title: "Health result"
+    properties:
+      status:
+        type: "string"
+  Balance:
+    type: "object"
+    properties:
+      tgt_date:
+        type: "string"
+      method_cd:
+        type: "string"
+      value:
+        type: "integer"
+      memo:
+        type: "string"
+  BalanceList:
+    type: "array"
+    items:
+      $ref: "#/definitions/Balance"
+  KindMst:
+    type: "object"
+    properties:
+      kind_cd:
+        type: "string"
+      kind_nm:
+        type: "string"
+      memo:
+        type: "string"
+      income_flg:
+        type: "integer"
+  KindMstList:
+    type: "array"
+    items:
+      $ref: "#/definitions/KindMst"
+  Slip:
+    type: "object"
+    properties:
+      tgt_date:
+        type: "string"
+      kind_cd:
+        type: "string"
+      uuid:
+        type: "string"
+      method_cd:
+        type: "string"
+      value:
+        type: "integer"
+      memo:
+        type: "string"
+      old_tgt_date:
+        type: "string"
+      old_kind_cd:
+        type: "string"
+      old_uuid:
+        type: "string"
+  SlipList:
+    type: "array"
+    items:
+      $ref: "#/definitions/Slip"
+  ChartData:
+    type: object
+    properties:
+      options:
+        type: object
+        properties:
+          scales:
+            type: object
+            properties:
+              xAxes:
+                type: array
+                items:
+                  $ref: '#/definitions/ChartAxis'
+              yAxes:
+                type: array
+                items:
+                  $ref: '#/definitions/ChartAxis'
+      chartdata:
+        type: object
+        properties:
+          labels:
+            type: array
+            items:
+              type: string
+          datasets:
+            type: array
+            items:
+              $ref: '#/definitions/ChartDataset'
+  ChartAxis:
+    type: object
+    properties:
+      stacked:
+        type: boolean
+      scaleLabel:
+        type: object
+        properties:
+          display:
+            type: boolean
+          labelString:
+            type: string
+      ticks:
+        type: object
+        properties:
+          beginAtZero:
+            type: boolean
+          stepSize:
+            type: number
+  ChartDataset:
+    type: object
+    properties:
+      label:
+        type: string
+      data:
+        type: array
+        items:
+          type: object
+      backgroundColor:
+        type: object
+  S3Url:
+    type: "string"
+    title: "Url for S3 download"

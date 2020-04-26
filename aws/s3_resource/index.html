@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0J for Windows">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=utf-8">
+	<TITLE>S3 static page</TITLE>
+  <script>
+    var request = new XMLHttpRequest();
+ 
+    request.open('POST', 'api/balance?tgt_date=20190831', true);
+    request.responseType = 'json';
+ 
+    request.onload = function () {
+      var data = this.response;
+      console.log(data);
+    };
+ 
+    request.send();
+  </script>
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+
+test s3
+
+</BODY>
+
+</HTML>
