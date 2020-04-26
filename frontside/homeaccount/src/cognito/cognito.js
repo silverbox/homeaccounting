@@ -77,7 +77,7 @@ export default class Cognito {
   /**
    * username, passwordでログイン
    */
-  login (username, password) {
+  login (username, password, onNewPasswordRequired) {
     const userData = { Username: username, Pool: this.userPool }
     const cognitoUser = new CognitoUser(userData)
     const authenticationData = { Username: username, Password: password }
@@ -91,8 +91,12 @@ export default class Cognito {
           reject(err)
         },
         newPasswordRequired: (userAttributes, requiredAttributes) => {
-          var newPass = window.prompt('Please input your new Password', 'Your input will not be masked. please make sure there is no other person.')
-          cognitoUser.completeNewPasswordChallenge(newPass, {}, callbacks)
+          onNewPasswordRequired(userAttributes, requiredAttributes).then((newPass) => {
+            // var newPass = window.prompt('Please input your new Password', 'Your input will not be masked. please make sure there is no other person.')
+            cognitoUser.completeNewPasswordChallenge(newPass, {}, callbacks)
+          }).catch((err) => {
+            reject(err)
+          })
         }
       }
       cognitoUser.authenticateUser(authenticationDetails, callbacks)

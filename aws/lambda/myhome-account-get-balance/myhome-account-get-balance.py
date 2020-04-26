@@ -37,13 +37,16 @@ def lambda_handler(event, context):
     date_to = dateutil.parser.parse(event['tgt_date'])
     wkchk = 0
     wkloop = date_to
+    emptyDateList = []
     while len(wkitems) == 0 and wkchk <= SAFECNT :
+        emptyDateList.append(wkloop.strftime("%Y%m%d")) # add empty date info
         wkloop = wkloop + datetime.timedelta(days=-1)
-        wkres = dynamotable.query(KeyConditionExpression=Key('tgt_date').eq(wkloop.strftime("%Y%m%d")))
+        wkdatestr = wkloop.strftime("%Y%m%d")
+        wkres = dynamotable.query(KeyConditionExpression=Key('tgt_date').eq(wkdatestr))
         wkitems = wkres['Items']
         wkchk += 1
 
-    if wkchk >= 1:
-        submit_balance(tgtDate, wkitems)
+    for emptyDate in emptyDateList:
+        submit_balance(emptyDate, wkitems)
 
     return wkitems
