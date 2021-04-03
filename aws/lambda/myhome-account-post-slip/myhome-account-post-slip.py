@@ -20,6 +20,7 @@ SAFECNT = 50
 ACCOUNT_DIR_CONSUME = '0'
 ACCOUNT_DIR_INCOME = '1'
 ACCOUNT_DIR_CHARGE = '2'
+ACCOUNT_DIR_NONCASH_CHARGE = '3'
 JST_OFFSET_HOURS = 9
 
 def convert_dynamodata_to_map(dynamodatalist):
@@ -68,7 +69,8 @@ def get_kindmstmap():
         {'kind_cd': 'gift', 'kind_nm': 'お祝い金', 'matrix_cd': 'income', 'account_dir': '1', 'memo': '親からもらったものなど', 'display_order': '17', 'prc_date': '2005/06/26'},
         {'kind_cd': 'sell', 'kind_nm': '物品売却', 'matrix_cd': 'income', 'account_dir': '1', 'memo': 'オークションその他', 'display_order': '18', 'prc_date': '2005/05/24'},
         {'kind_cd': 'withdrow', 'kind_nm': '銀行引出', 'matrix_cd': 'income', 'account_dir': '1', 'memo': '', 'display_order': '19', 'prc_date': '2005/05/24'},
-        {'kind_cd': 'charge', 'kind_nm': 'チャージ', 'matrix_cd': 'charge', 'account_dir': '2', 'memo': '', 'display_order': '20', 'prc_date': '2019/12/07'}
+        {'kind_cd': 'charge', 'kind_nm': '現金チャージ', 'matrix_cd': 'charge', 'account_dir': '2', 'memo': '', 'display_order': '20', 'prc_date': '2019/12/07'},
+        {'kind_cd': 'bankcharge', 'kind_nm': '非現金チャージ', 'matrix_cd': 'charge', 'account_dir': '3', 'memo': '', 'display_order': '21', 'prc_date': '2019/12/07'}
     ]
     kindmstmap = {}
     for wk_kindmst in wkitems:
@@ -146,6 +148,7 @@ def get_upd_tr_slipitems(bodyParam):
     oldval = bodyParam['old_value']
     newval = bodyParam['value']
     if bodyParam['tgt_date'] != oldtgtdate or bodyParam['kind_cd'] != bodyParam['old_kind_cd'] or bodyParam['old_uuid'] != bodyParam['uuid']:
+        # if key information is changed, delete and insert operation is required.
         insitem = {
             'Put': {
                 'TableName': TBL_SLIP,
@@ -194,6 +197,14 @@ def get_upd_tr_slipitems(bodyParam):
     return retlist
 
 def get_balance_transaction_items(recalctgt, bodyParam, kindmstmap):
+    """
+    Args:
+        recalctgt(string): oldest day should to recalc
+        bodyParam(dict): parameters from client side
+        kindmstmap(dict): master data of kindmst
+    Returns:
+        list[dict]: information list to get target balance information
+    """
     target_methodlist = []
     has_cash = False
     if bodyParam['method_cd'] != '':
@@ -206,6 +217,7 @@ def get_balance_transaction_items(recalctgt, bodyParam, kindmstmap):
             has_cash = True
     
     if not has_cash:
+        # if the operation is Charge, target should contain 'cash' for special operation
         if bodyParam['kind_cd'] != '':
             wkkindmst = kindmstmap[bodyParam['kind_cd']]
             if wkkindmst['account_dir'] == ACCOUNT_DIR_CHARGE: 
@@ -247,8 +259,17 @@ def get_balance_transaction_items(recalctgt, bodyParam, kindmstmap):
     return ret_tritemlist
 
 def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
+    """
+    Args:
+        bodyParam(dict): parameters from client side
+        balance_datalist(list[dict])
+        kindmstmap(dict): master data of kindmst
+    Returns:
+        list[dict]: list of transaction information to update balance
+    """
     ret_tritemlist = []
     for balance_data in balance_datalist:
+        # target balance data to update
         bl_tgtdate = balance_data['tgt_date']
         bl_method = balance_data['method_cd']
         bl_value = balance_data['value']
@@ -258,6 +279,7 @@ def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
         #    continue
 
         if bodyParam['tgt_date'] != '':
+            # target slip data
             prm_tgt_date = bodyParam['tgt_date']
             prm_kind_cd = bodyParam['kind_cd']
             prm_method_cd = bodyParam['method_cd']
@@ -272,6 +294,8 @@ def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
 
                 if bl_method == prm_method_cd:
                     if new_dir == ACCOUNT_DIR_CHARGE:
+                        wk_bl_value += Decimal(prm_value)
+                    elif new_dir == ACCOUNT_DIR_NONCASH_CHARGE:
                         wk_bl_value += Decimal(prm_value)
                     elif new_dir == ACCOUNT_DIR_INCOME:
                         wk_bl_value += Decimal(prm_value)
@@ -293,6 +317,8 @@ def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
 
                 if bl_method == prm_old_method_cd:
                     if old_dir == ACCOUNT_DIR_CHARGE:
+                        wk_bl_value -= Decimal(prm_old_value)
+                    elif new_dir == ACCOUNT_DIR_NONCASH_CHARGE:
                         wk_bl_value -= Decimal(prm_old_value)
                     elif old_dir == ACCOUNT_DIR_INCOME:
                         wk_bl_value -= Decimal(prm_old_value)
@@ -341,6 +367,7 @@ def lambda_handler(event, context):
     mode = ''
     recalctgt = bodyParam['tgt_date']
     tran_items = []
+    # 'old_tgt_date' in bodyParam means update/delete old data
     if bodyParam['tgt_date'] == '':
         recalctgt = bodyParam['old_tgt_date']
         tran_items.extend(get_del_tr_slipitems(bodyParam))
