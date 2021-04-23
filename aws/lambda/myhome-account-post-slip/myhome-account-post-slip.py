@@ -318,7 +318,7 @@ def get_upd_tr_balanceitems(bodyParam, balance_datalist, kindmstmap):
                 if bl_method == prm_old_method_cd:
                     if old_dir == ACCOUNT_DIR_CHARGE:
                         wk_bl_value -= Decimal(prm_old_value)
-                    elif new_dir == ACCOUNT_DIR_NONCASH_CHARGE:
+                    elif old_dir == ACCOUNT_DIR_NONCASH_CHARGE:
                         wk_bl_value -= Decimal(prm_old_value)
                     elif old_dir == ACCOUNT_DIR_INCOME:
                         wk_bl_value -= Decimal(prm_old_value)
