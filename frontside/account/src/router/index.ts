@@ -1,11 +1,18 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import SlipInput from '@/components/SlipInput.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'home',
     component: HomeView
+  },
+  {
+    path: '/input',
+    name: 'SlipInput',
+    component: SlipInput,
+    // beforeEnter: requireAuth
   },
   {
     path: '/about',
