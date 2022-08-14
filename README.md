@@ -71,3 +71,10 @@ Unit Testing
 ? Pick a unit testing solution: Jest
 ? Where do you prefer placing config for Babel, ESLint, etc.? In dedicated config files
 ```
+
+ChromeをCORS無効で起動する時
+```console
+# 以下どちらか
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --disable-web-security --user-data-dir="C:\temp" --disable-site-isolation-trials
+"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --disable-web-security --user-data-dir="C:\temp" --disable-site-isolation-trials
+```

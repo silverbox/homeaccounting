@@ -60,24 +60,13 @@
 
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
+import { SlipRec, BalanceView } from '@/common/interfaces';
+import api from '@/common/api';
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import myutils from '@/common/myutils';
 console.log(masterdata.getKindNm('magazine'));
 console.log(myutils.getYYYYMMDDStr(new Date()));
-
-interface SlipRec {
-  'tgt_date': Date;
-  'kind_cd': string;
-  'method_cd': string;
-  'uuid': string;
-  'value': number,
-  'memo': string;
-}
-interface Balance {
-  'method_nm': string;
-  'value_fmt': string;
-}
 
 const slipDef: SlipRec = {
   tgt_date: new Date(),
@@ -96,7 +85,7 @@ export default defineComponent({
     const slip = ref<SlipRec>(slipDef);
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
-    const balancelist = ref<Balance[]>([]);
+    const balancelist = ref<BalanceView[]>([]);
 
     const onsubmit = () => {
       console.log('slip-data1:' + slip.value.method_cd + ':' + slip.value.uuid);
@@ -125,12 +114,12 @@ export default defineComponent({
       // })
       submiting.value = false;
     };
-    const initData = () => {
+    const initData = async () => {
       // get balance data
       balanceloading.value = true;
 
       const tgtToDateStr = myutils.getYYYYMMDDStr(new Date());
-      const prmstr = 'tgt_date=' + tgtToDateStr;
+      const balanceList = await api.getBalanceList(tgtToDateStr);
       // this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'balance?' + prmstr).then(
       //   response => {
       //     that.finload(that, response)
@@ -148,7 +137,7 @@ export default defineComponent({
       var wkBalanceList = []
       for (var resdata of response.data) {
         wkDateStr = myutils.getLocalDateStr(resdata['tgt_date'])
-        const wkBalance: Balance = {
+        const wkBalance: BalanceView = {
           method_nm: masterdata.getMethodNm(resdata['method_cd']),
           value_fmt: Number(resdata['value']).toLocaleString()
         }
