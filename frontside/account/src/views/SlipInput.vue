@@ -61,7 +61,7 @@
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
 import { SlipRec, BalanceView } from '@/common/interfaces';
-import api from '@/common/api';
+import ApiCalls from '@/common/api';
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import myutils from '@/common/myutils';
@@ -86,6 +86,7 @@ export default defineComponent({
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
     const balancelist = ref<BalanceView[]>([]);
+    const api = new ApiCalls();
 
     const onsubmit = () => {
       console.log('slip-data1:' + slip.value.method_cd + ':' + slip.value.uuid);
@@ -129,23 +130,25 @@ export default defineComponent({
       //   that.$message({message: err, type: 'error'})
       //   this.balanceloading = false
       // })
+      balancedate.value = myutils.getLocalDateStr(tgtToDateStr);
+      balancelist.value = balanceList;
       balanceloading.value = false;
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const finload = (response: any) => {
-      var wkDateStr = ''
-      var wkBalanceList = []
-      for (var resdata of response.data) {
-        wkDateStr = myutils.getLocalDateStr(resdata['tgt_date'])
-        const wkBalance: BalanceView = {
-          method_nm: masterdata.getMethodNm(resdata['method_cd']),
-          value_fmt: Number(resdata['value']).toLocaleString()
-        }
-        wkBalanceList.push(wkBalance)
-      }
-      balancedate.value = wkDateStr
-      balancelist.value = wkBalanceList
-    };
+    // const finload = (response: any) => {
+    //   var wkDateStr = ''
+    //   var wkBalanceList = []
+    //   for (var resdata of response.data) {
+    //     wkDateStr = myutils.getLocalDateStr(resdata['tgt_date'])
+    //     const wkBalance: BalanceView = {
+    //       method_nm: masterdata.getMethodNm(resdata['method_cd']),
+    //       value_fmt: Number(resdata['value']).toLocaleString()
+    //     }
+    //     wkBalanceList.push(wkBalance)
+    //   }
+    //   balancedate.value = wkDateStr
+    //   balancelist.value = wkBalanceList
+    // };
 
     onMounted(() => {
       initData();
@@ -161,8 +164,7 @@ export default defineComponent({
       balancedate,
       balancelist,
       //
-      onsubmit,
-      finload
+      onsubmit
     }
   }
 });
