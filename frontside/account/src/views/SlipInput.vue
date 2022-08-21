@@ -1,10 +1,10 @@
 <template>
   <div class="inputform">
-    <el-form ref="form" :model="slip" label-width="100px">
-      <el-form-item label="日付">
+    <el-form class="input-form" ref="form" :model="slip" label-width="100px">
+      <el-form-item class="input-field" label="日付">
         <el-date-picker v-model="slip.tgt_date" type="date" placeholder="Pick a day" />
       </el-form-item>
-      <el-form-item label="種類">
+      <el-form-item class="input-field" label="種類">
         <el-select v-model="slip.kind_cd" placeholder="Select item kind">
           <el-option
             v-for="item in KIND_MST"
@@ -14,7 +14,7 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="支払方法">
+      <el-form-item class="input-field" label="支払方法">
         <el-select v-model="slip.method_cd" placeholder="Select payment method">
           <el-option
             v-for="item in PAY_METHOD_MST"
@@ -24,13 +24,13 @@
           </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="金額">
+      <el-form-item class="input-field" label="金額">
         <el-input v-model="slip.value" type="number"/>
       </el-form-item>
-      <el-form-item label="メモ">
+      <el-form-item class="input-field" label="メモ">
         <el-input v-model="slip.memo" />
       </el-form-item>
-      <el-form-item label="id">
+      <el-form-item class="input-field" label="id">
         <el-input v-model="slip.uuid" :disabled="true" />
       </el-form-item>
     </el-form>
@@ -40,17 +40,17 @@
     <p v-loading="balanceloading" class="balancetable">
       <el-table
         :data="balancelist"
-        style="width: 80%">
+        style="display: block; width: 240px; margin: auto;">
         <el-table-column
           prop="method_nm"
           label="種類"
-          width="180"
+          width="120"
           align="center">
         </el-table-column>
         <el-table-column
           prop="value_fmt"
           label="金額"
-          width="100"
+          width="120"
           align="center">
         </el-table-column>
       </el-table>
@@ -61,12 +61,12 @@
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
 import { SlipRec, BalanceView } from '@/common/interfaces';
-import ApiCalls from '@/common/api';
+import { ElMessage } from 'element-plus'
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
+import ApiCalls from '@/common/api';
 import myutils from '@/common/myutils';
-console.log(masterdata.getKindNm('magazine'));
-console.log(myutils.getYYYYMMDDStr(new Date()));
+
 
 const slipDef: SlipRec = {
   tgt_date: new Date(),
@@ -88,18 +88,19 @@ export default defineComponent({
     const balancelist = ref<BalanceView[]>([]);
     const api = new ApiCalls();
 
-    const onsubmit = () => {
+    const onsubmit = async () => {
       console.log('slip-data1:' + slip.value.method_cd + ':' + slip.value.uuid);
       submiting.value = true;
 
-      const slipdata = {
-        'tgt_date': slip.value.tgt_date,
+      const slipData = {
+        'tgt_date': myutils.getYYYYMMDDStr(slip.value.tgt_date),
         'kind_cd': slip.value.kind_cd,
         'method_cd': slip.value.method_cd,
         'uuid': slip.value.uuid,
-        'value': slip.value,
+        'value': slip.value.value,
         'memo': slip.value.memo ? slip.value.memo : ''
       };
+      console.log(slipData);
 
       // var self = this
       // this.$cognito.callPostApi(this.$axios, this.apienv.baseendpoint + 'slip', slipdata).then(
@@ -113,7 +114,23 @@ export default defineComponent({
       //   self.$message({message: err, type: 'error'})
       //   self.submiting = false
       // })
-      submiting.value = false;
+      try {
+        await api.postSlip(slipData);
+        initData();
+        ElMessage({
+          showClose: true,
+          message: '登録しました',
+          type: 'success',
+        });
+      } catch (error: any) {
+        ElMessage({
+          showClose: true,
+          message: '登録に失敗しました',
+          type: 'error',
+        });
+      } finally {
+        submiting.value = false;
+      }
     };
     const initData = async () => {
       // get balance data
@@ -121,34 +138,10 @@ export default defineComponent({
 
       const tgtToDateStr = myutils.getYYYYMMDDStr(new Date());
       const balanceList = await api.getBalanceList(tgtToDateStr);
-      // this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'balance?' + prmstr).then(
-      //   response => {
-      //     that.finload(that, response)
-      //     this.balanceloading = false
-      //   }
-      // ).catch(err => {
-      //   that.$message({message: err, type: 'error'})
-      //   this.balanceloading = false
-      // })
       balancedate.value = myutils.getLocalDateStr(tgtToDateStr);
       balancelist.value = balanceList;
       balanceloading.value = false;
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // const finload = (response: any) => {
-    //   var wkDateStr = ''
-    //   var wkBalanceList = []
-    //   for (var resdata of response.data) {
-    //     wkDateStr = myutils.getLocalDateStr(resdata['tgt_date'])
-    //     const wkBalance: BalanceView = {
-    //       method_nm: masterdata.getMethodNm(resdata['method_cd']),
-    //       value_fmt: Number(resdata['value']).toLocaleString()
-    //     }
-    //     wkBalanceList.push(wkBalance)
-    //   }
-    //   balancedate.value = wkDateStr
-    //   balancelist.value = wkBalanceList
-    // };
 
     onMounted(() => {
       initData();
@@ -171,10 +164,17 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.inputform{
+.inputform {
   padding : 20px;
 }
-.balancetable{
+.balancetable {
   padding : 5px 0px 0px 10px;
+}
+.input-form {
+  margin: auto;
+  width: 380px;
+}
+.input-field {
+  width: 300px;
 }
 </style>
