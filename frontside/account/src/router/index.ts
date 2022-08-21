@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
-import LoginView from '@/views/LoginView.vue'
 import SlipInput from '@/views/SlipInput.vue'
 
 // const requireAuth = (to, from, next) => {
@@ -27,11 +26,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'home',
     component: HomeView
-  },
-  {
-    path: '/login',
-    name: 'LoginView',
-    component: LoginView
   },
   {
     path: '/input',
