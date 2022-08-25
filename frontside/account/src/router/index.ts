@@ -34,6 +34,11 @@ const routes: Array<RouteRecordRaw> = [
     // beforeEnter: requireAuth
   },
   {
+    path: '/list',
+    name: 'SlipList',
+    component: SlipList,
+  },
+  {
     path: '/about',
     name: 'about',
     // route level code-splitting

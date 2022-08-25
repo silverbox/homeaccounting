@@ -1,3 +1,5 @@
+import { SlipRec } from '@/common/interfaces';
+
 export default {
   getYYYYMMDDStr: (dateObj: Date): string => {
     const YYYY = dateObj.getFullYear()
@@ -22,5 +24,15 @@ export default {
     const mm = Number(yyyyMMddStr.substr(4, 2)) - 1
     const dd = Number(yyyyMMddStr.substr(6, 2))
     return new Date(yy, mm, dd)
+  },
+  cloneSlip: (orgSlip: SlipRec): SlipRec => {
+    return {
+      tgt_date: new Date(orgSlip.tgt_date.getTime()),
+      kind_cd: orgSlip.kind_cd,
+      method_cd: orgSlip.method_cd,
+      uuid: orgSlip.uuid,
+      value: orgSlip.value,
+      memo: orgSlip.memo
+    }
   }
 }

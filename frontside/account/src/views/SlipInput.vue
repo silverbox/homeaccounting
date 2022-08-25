@@ -67,7 +67,6 @@ import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
 import myutils from '@/common/myutils';
 
-
 const slipDef: SlipRec = {
   tgt_date: new Date(),
   kind_cd: KIND_MST[0].kind_cd,
@@ -89,7 +88,6 @@ export default defineComponent({
     const api = new ApiCalls();
 
     const onsubmit = async () => {
-      console.log('slip-data1:' + slip.value.method_cd + ':' + slip.value.uuid);
       submiting.value = true;
 
       const slipData = {
@@ -100,20 +98,7 @@ export default defineComponent({
         'value': slip.value.value,
         'memo': slip.value.memo ? slip.value.memo : ''
       };
-      console.log(slipData);
 
-      // var self = this
-      // this.$cognito.callPostApi(this.$axios, this.apienv.baseendpoint + 'slip', slipdata).then(
-      //   response => {
-      //     console.log(response.data)
-      //     self.$message({message: '登録しました', type: 'success'})
-      //     self.initData()
-      //     self.submiting = false
-      //   }
-      // ).catch(err => {
-      //   self.$message({message: err, type: 'error'})
-      //   self.submiting = false
-      // })
       try {
         await api.postSlip(slipData);
         initData();
