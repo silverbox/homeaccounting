@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="入力" :visible.sync="slipDialogVisible" class="slipinputdlg" v-loading="saving">
+  <el-dialog title="入力" class="slipinputdlg" v-loading="saving">
     <el-form ref="form" :model="slip" label-width="80px">
       <el-form-item label="日付">
         <el-date-picker v-model="slip.tgt_date_obj" type="date" placeholder="Pick a day" />
@@ -36,7 +36,7 @@
     </el-form>
     <div class="dialog-footer">
       <el-button type="warning" :plain="true" @click="onDelSubmit">削除</el-button>
-      <el-button type="danger" :plain="true" @click="slipDialogVisible = false">中止</el-button>
+      <el-button type="danger" :plain="true" >中止</el-button>
       <el-button type="primary" @click="onUpdSubmit">登録</el-button>
     </div>
   </el-dialog>
@@ -45,45 +45,34 @@
 <script>
 import { defineComponent, computed, ref, onMounted, props, toRefs } from 'vue';
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
-import { SlipRec, BalanceView } from '@/common/interfaces';
+import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
 import myutils from '@/common/myutils';
-
-const slipDef: SlipRec = {
-  tgt_date: new Date(),
-  kind_cd: KIND_MST[0].kind_cd,
-  method_cd: PAY_METHOD_MST[0].method_cd,
-  uuid: '',
-  value: 0,
-  memo: ''
-};
+import ApiCalls from '@/common/api';
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
   name: 'SlipInputDlg',
   setup(props, context) {
     const api = new ApiCalls();
-    const { callbackprm } = toRefs(props);
+    //
+    const { slipdata } = toRefs(props);
+
     const kindMst = KIND_MST;
     const payMethodMst = PAY_METHOD_MST;
-    const slipDialogVisible = refs<boolean>(false);
-    const balance = refs<number>(0);
-    const saving = refs<boolean>(false);
-    const slip = refs<SlipRec>(myutils.cloneSlip(slipDef));
-    const slipOld = refs<SlipRec>(myutils.cloneSlip(slipDef));
+    const balance = ref(0);
+    const saving = ref(false);
+    // const slip = ref<SlipRec>(myutils.cloneSlip(DEF_SLIP));
+    // const slipOld = ref<SlipRec>(myutils.cloneSlip(DEF_SLIP));
+    const slip = ref<SlipRec>(myutils.cloneSlip(slipdata.value));
+    const slipOld = ref<SlipRec>(myutils.cloneSlip(slipdata.value));
     //
-    const setSlipData = (slipdata: SlipRec) => {
-      slip.value = myutils.cloneSlip(slipdata);
-      slipOld.value = myutils.cloneSlip(slipdata);
-    };
-    const show = () => {
-      slipDialogVisible.value = true;
-    };
     const onDelSubmit = () => {
       onSubmitSub('del');
     };
     const onUpdSubmit = () => {
       onSubmitSub('upd');
     };
-    const onSubmitSub = (mode) => {
+    const onSubmitSub = async (mode) => {
       saving.value = true;
 
       const slipData = {
@@ -98,56 +87,42 @@ export default defineComponent({
         'old_uuid': slipOld.value.uuid,
         'old_method_cd': slipOld.value.method_cd,
         'old_value': slipOld.value.value
-      }
+      };
       if (mode === 'del') {
-        slipData['tgt_date'] = ''
-        slipData['kind_cd'] = ''
-        slipData['uuid'] = ''
+        slipData['tgt_date'] = '';
+        slipData['kind_cd'] = '';
+        slipData['uuid'] = '';
       }
 
       await api.postSlip(slipData);
-      slipDialogVisible.value = false;
       ElMessage({
         showClose: true,
         message: '登録しました',
         type: 'success',
       });
       saving.value = false;
-      if (callback.value !== undefined) {
-        callback.value(mode, slipData)
-      }
+      context.emit("slipSubmit", mode, slipData);
     };
 
     return {
       balance,
       kindMst,
       payMethodMst,
-      slipDialogVisible,
       saving,
       slip,
       slipOld,
       //
-      setSlipData,
-      show,
       onDelSubmit,
       onUpdSubmit,
     }
   },
   props: {
-    parent: {
-      type: Element,
+    slipdata: {
+      type: SlipRec,
       require: true
-    },
-    callback: {
-      type: Function,
-      require: false
     }
   },
-  mounted: function () {
-    // console.log('mounted:' + this.slip['uuid'])
-    this.parent.appendChild(this.$el)
-  },
-}
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

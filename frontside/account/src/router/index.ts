@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import SlipInput from '@/views/SlipInput.vue'
+import SlipList from '@/views/SlipList.vue'
 
 // const requireAuth = (to, from, next) => {
 //   cognito.isAuthenticated()

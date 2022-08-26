@@ -1,9 +1,9 @@
 import { useAuthenticator } from '@aws-amplify/ui-vue';
 import { CognitoUserSession } from 'amazon-cognito-identity-js';
 import axios from 'axios';
-import { BalanceView } from '@/common/interfaces';
+import { BalanceView, SlipView } from '@/common/interfaces';
 import masterdata from '@/const/masterdata';
-// import myutils from '@/common/myutils';
+import myutils from '@/common/myutils';
 
 const API_BASE_URL = (process.env.VUE_APP_API_BASE_URL as string);
 
@@ -73,13 +73,27 @@ export default class ApiCalls {
     });
   };
 
+  getSlipList = async (tgtToDateStr: string, tgtFromDateStr: string): Promise<SlipView[]> => {
+    return new Promise(resolve => {
+      const url = `${API_BASE_URL}/slip?tgt_date_to=${tgtToDateStr}&tgt_date_from=${tgtFromDateStr}`;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._callGetApi(url, {}, (response: any) => {
+        const wkSlipList: SlipView[] = [];
+        for (const resdata of response.data) {
+          wkSlipList.push(myutils.getSlipView(resdata));
+        }
+        resolve(wkSlipList);
+      });
+    });
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   postSlip = async (slipData: {[key:string]: any}): Promise<boolean> => {
     return new Promise(resolve => {
       const url = `${API_BASE_URL}/slip`;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._callPostApi(url, {}, slipData, () => {
-        resolve(true);
+      this._callPostApi(url, {}, slipData, (response: any) => {
+        resolve(response);
       });
     });
   }

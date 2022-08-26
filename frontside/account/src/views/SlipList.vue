@@ -16,7 +16,7 @@
           <div class="slip-val-elem slip-w-num-h ">金額</div>
           <div class="slip-val-elem ">メモ</div>
         </div>
-        <div v-for="(item, index) in sliplist" class="slip-item" :key="index" @click="slipedit">
+        <div v-for="(item, index) in sliplist" class="slip-item" :key="index" @click="slipedit(item.uuid)">
           <div class="slip-val-elem slip-w-mid ">{{ item.tgt_date_str }}</div>
           <div class="slip-val-elem slip-w-mid ">{{ item.kind_nm }}</div>
           <div class="slip-val-elem slip-w-mid ">{{ item.method_nm }}</div>
@@ -30,119 +30,120 @@
       </p>
       <p v-if="noMore">Limit over(100 records or 33 days)</p>
     </div>
+    <SlipInputDlg v-if="dialogVisible"
+      v-bind:slipdata="dialogSlip"
+      v-on:slipSubmit="onSlipSubmit"
+    ></SlipInputDlg>
   </div>
 </template>
 
 <script lang='ts'>
-import { defineComponent, computed, ref, onMounted } from 'vue';
-import { SlipRec, BalanceView } from '@/common/interfaces';
-import SlipInputDlg from '@/components/SlipInputDlg'
+import { defineComponent, computed, ref, getCurrentInstance } from 'vue';
+import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
+import SlipInputDlg from '@/components/SlipInputDlg.vue'
+import myutils from '@/common/myutils';
+import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
+import ApiCalls from '@/common/api';
 
-const SlipInputDlgConstructor = Vue.extend(SlipInputDlg)
 const LOAD_DATE_CNT = 3
 const LOAD_LIMIT_DATE = 31
 const LOAD_LIMIT_REC = 100
 
 export default {
   name: 'SlipList',
-  data () {
-    return {
-      tgtdate: new Date(),
-      sliplist: [],
-      loading: false,
-      loaddatecnt: LOAD_DATE_CNT,
-      loadeddatecnt: 0,
-      dlgeditidx: -1,
-      wkdate: new Date(),
-      inputDlg: undefined
-    }
-  },
-  mounted (e) {
-    this.inputDlg = new SlipInputDlgConstructor({
-      propsData: {
-        parent: this.$el,
-        callback: this.dlgCloseCallback
-      }
-    })
-    this.inputDlg.$mount()
-  },
-  computed: {
-    count () {
-      return this.sliplist.length
-    },
-    noMore () {
-      return this.sliplist.length >= LOAD_LIMIT_REC || this.loadeddatecnt >= LOAD_LIMIT_DATE
-    },
-    disabled () {
-      return this.loading || this.noMore
-    }
-  },
-  methods: {
-    slipedit: function (e) {
-      var elements = e.target.parentNode.childNodes
-      const idx = [].slice.call(elements).indexOf(e.target) - 1
-      this.dlgeditidx = idx - 1
-      this.inputDlg.setSlipData(this.sliplist[this.dlgeditidx])
-      this.inputDlg.show()
-    },
-    dlgCloseCallback: function (mode, newSlipData) {
-      console.log('dlgCloseCallback:' + mode + ':' + newSlipData)
-      if (mode === 'upd') {
-        var wkSlip = newSlipData
-        wkSlip['tgt_date_obj'] = this.$myutils.getLocalDate(newSlipData['tgt_date'])
-        wkSlip['tgt_date_str'] = this.$myutils.getLocalDateStr(newSlipData['tgt_date'])
-        wkSlip['kind_nm'] = this.$masterdata.getKindNm(newSlipData['kind_cd'])
-        wkSlip['method_nm'] = this.$masterdata.getMethodNm(newSlipData['method_cd'])
-        wkSlip['value_fmt'] = Number(newSlipData['value']).toLocaleString()
-        this.sliplist[this.dlgeditidx] = wkSlip
-        this.$forceUpdate()
-      } else {
-        this.sliplist.splice(this.dlgeditidx, 1)
-      }
-    },
-    loadMore: function () {
-      if (!this.loading) {
-        this.loadsub(this)
-      }
-    },
-    loadsub: function (that) {
-      that.loading = true
-      const tgttodatestr = that.$myutils.getYYYYMMDDStr(that.wkdate)
-      that.wkdate.setDate(that.wkdate.getDate() + 1 - LOAD_DATE_CNT)
-      const tgtfromdatestr = that.$myutils.getYYYYMMDDStr(that.wkdate)
+  setup(props: any, context: any) {
+    const instance = getCurrentInstance();
+    const api = new ApiCalls();
+    //
+    const tgtdate = ref<Date>(new Date());
+    const sliplist = ref<SlipRec[]>([]);
+    const loading = ref<boolean>(false);
+    const loaddatecnt = ref<number>(LOAD_DATE_CNT);
+    const loadeddatecnt = ref<number>(0);
+    const dlgeditidx = ref<number>(-1);
+    const wkdate = ref<Date>(new Date());
+    //
+    const dialogSlip = ref<SlipRec>(DEF_SLIP);
+    const dialogVisible = ref<boolean>(false);
 
-      const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_from=' + tgtfromdatestr
-      that.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'slip?' + prmstr).then(
-        response => {
-          that.finload(that, response)
+    const count = computed(() => {
+      return sliplist.value.length;
+    });
+    const noMore = computed(() => {
+      return sliplist.value.length >= LOAD_LIMIT_REC || loadeddatecnt.value >= LOAD_LIMIT_DATE;
+    });
+    const disabled = computed(() => {
+      return loading.value || noMore.value;
+    });
+
+    const slipedit = (uuid: string) => {
+      for (const slip of sliplist.value) {
+        if (slip.uuid == uuid) {
+          dialogSlip.value = slip;
         }
-      ).catch(err => {
-        that.$message({message: err, type: 'error'})
-      })
-    },
-    finload: function (that, response) {
-      for (var resdata of response.data) {
-        resdata['tgt_date_obj'] = that.$myutils.getLocalDate(resdata['tgt_date'])
-        resdata['tgt_date_str'] = that.$myutils.getLocalDateStr(resdata['tgt_date'])
-        resdata['kind_nm'] = that.$masterdata.getKindNm(resdata['kind_cd'])
-        resdata['method_nm'] = that.$masterdata.getMethodNm(resdata['method_cd'])
-        resdata['value_fmt'] = Number(resdata['value']).toLocaleString()
       }
-      Array.prototype.push.apply(that.sliplist, response.data)
-      that.wkdate.setDate(that.wkdate.getDate() - 1)
-      that.loading = false
-      that.loadeddatecnt += that.loaddatecnt
-    },
-    reload: function () {
-      if (!this.loading) {
-        this.loading = true
-        this.wkdate = new Date(this.tgtdate)
-        this.sliplist = []
-        this.loadeddatecnt = 0
-        this.loading = false
-        this.loadMore()
+      dialogVisible.value = true;
+    };
+    const onSlipSubmit = (mode: string, newSlipData: {[key: string]: string}) => {
+      console.log('dlgCloseCallback:' + mode + ':' + newSlipData);
+      if (mode === 'upd') {
+        sliplist.value[dlgeditidx.value] = myutils.getSlipView(newSlipData);
+        if (instance != null && instance.proxy != null) instance.proxy.$forceUpdate();
+      } else {
+        sliplist.value.splice(dlgeditidx.value, 1);
       }
+    };
+    const loadMore = () => {
+      if (!loading.value) {
+        loadsub();
+      }
+    };
+    const loadsub = async () => {
+      loading.value = true;
+      const tgtToDateStr = myutils.getYYYYMMDDStr(wkdate.value);
+      wkdate.value.setDate(wkdate.value.getDate() + 1 - LOAD_DATE_CNT);
+      const tgtFromDateStr = myutils.getYYYYMMDDStr(wkdate.value);
+
+      const newSlipList = await api.getSlipList(tgtToDateStr, tgtFromDateStr);
+      Array.prototype.push.apply(sliplist.value, newSlipList);
+      wkdate.value.setDate(wkdate.value.getDate() - 1);
+      loading.value = false;
+      loadeddatecnt.value += loaddatecnt.value;
+    };
+    const reload = () => {
+      if (!loading.value) {
+        loading.value = true;
+        wkdate.value = new Date(tgtdate.value);
+        sliplist.value = [];
+        loadeddatecnt.value = 0;
+        loading.value = false;
+        loadMore();
+      }
+    };
+
+    return {
+      tgtdate,
+      sliplist,
+      loading,
+      loaddatecnt,
+      loadeddatecnt,
+      dlgeditidx,
+      wkdate,
+      dialogSlip,
+      dialogVisible,
+      //
+      count,
+      noMore,
+      disabled,
+      //
+      onSlipSubmit,
+      slipedit,
+      loadMore,
+      reload
     }
+  },
+  components: {
+    SlipInputDlg
   }
 }
 </script>

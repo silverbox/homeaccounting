@@ -1,4 +1,6 @@
-import { SlipRec } from '@/common/interfaces';
+import myutils from '@/common/myutils';
+import masterdata from '@/const/masterdata';
+import { SlipRec, SlipView } from '@/common/interfaces';
 
 export default {
   getYYYYMMDDStr: (dateObj: Date): string => {
@@ -27,12 +29,28 @@ export default {
   },
   cloneSlip: (orgSlip: SlipRec): SlipRec => {
     return {
-      tgt_date: new Date(orgSlip.tgt_date.getTime()),
-      kind_cd: orgSlip.kind_cd,
-      method_cd: orgSlip.method_cd,
-      uuid: orgSlip.uuid,
-      value: orgSlip.value,
-      memo: orgSlip.memo
+      tgt_date: new Date(orgSlip['tgt_date'].getTime()),
+      kind_cd: orgSlip['kind_cd'],
+      method_cd: orgSlip['method_cd'],
+      uuid: orgSlip['uuid'],
+      value: orgSlip['value'],
+      memo: orgSlip['memo']
+    }
+  },
+  getSlipView: (orgSlip: {[key: string]: any }): SlipView => {
+    return {
+      tgt_date: myutils.getLocalDate(orgSlip['tgt_date']),
+      kind_cd: orgSlip['kind_cd'],
+      method_cd: orgSlip['method_cd'],
+      uuid: orgSlip['uuid'],
+      value: orgSlip['value'],
+      memo: orgSlip['memo'],
+      //
+      tgt_date_obj: myutils.getLocalDate(orgSlip['tgt_date']),
+      tgt_date_str: myutils.getLocalDateStr(orgSlip['tgt_date']),
+      kind_nm: masterdata.getKindNm(orgSlip['kind_cd']),
+      method_nm: masterdata.getMethodNm(orgSlip['method_cd']),
+      value_fmt: Number(orgSlip['value']).toLocaleString()
     }
   }
 }

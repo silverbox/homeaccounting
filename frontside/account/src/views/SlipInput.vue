@@ -60,32 +60,24 @@
 
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
-import { SlipRec, BalanceView } from '@/common/interfaces';
+import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
 import { ElMessage } from 'element-plus'
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
 import myutils from '@/common/myutils';
 
-const slipDef: SlipRec = {
-  tgt_date: new Date(),
-  kind_cd: KIND_MST[0].kind_cd,
-  method_cd: PAY_METHOD_MST[0].method_cd,
-  uuid: '',
-  value: 0,
-  memo: ''
-};
-
 export default defineComponent({
   name: 'SlipInput',
   setup() {
+    const api = new ApiCalls();
+
     const balance = ref<number>(0);
     const submiting = ref<boolean>(false);
-    const slip = ref<SlipRec>(slipDef);
+    const slip = ref<SlipRec>(DEF_SLIP);
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
     const balancelist = ref<BalanceView[]>([]);
-    const api = new ApiCalls();
 
     const onsubmit = async () => {
       submiting.value = true;
