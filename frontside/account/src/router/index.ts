@@ -1,25 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import SlipInput from '@/views/SlipInput.vue'
+import SlipList from '@/views/SlipList.vue'
 
-// const requireAuth = (to, from, next) => {
-//   cognito.isAuthenticated()
-//     .then(function (session) {
-//       // console.log('isAuthenticated:' + myutils.getIdToken())
-//       next()
-//     })
-//     .catch(session => {
-//       next({
-//         path: '/login',
-//         query: { redirect: to.fullPath }
-//       })
-//     })
-// }
-
-// const logout = (to, from, next) => {
-//   cognito.logout()
-//   next('/login')
-// }
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,6 +15,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'SlipInput',
     component: SlipInput,
     // beforeEnter: requireAuth
+  },
+  {
+    path: '/list',
+    name: 'SlipList',
+    component: SlipList,
   },
   {
     path: '/about',

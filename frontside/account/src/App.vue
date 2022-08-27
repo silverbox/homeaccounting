@@ -10,8 +10,9 @@
       mode="horizontal"
       @select="onPageSelect">
       <el-menu-item label="Input" name="input" index="1">Input</el-menu-item>
+      <el-menu-item label="List" name="input" index="2">List</el-menu-item>
       <div class="flex-grow" />
-      <el-menu-item label="SignOut" name="signout" index="2">SignOut</el-menu-item>
+      <el-menu-item label="SignOut" name="signout" index="3">SignOut</el-menu-item>
     </el-menu>
     <router-view/>
   </div>
@@ -44,6 +45,10 @@ export default defineComponent({
           router.push({ name: "SlipInput" });
           break;
         case "2":
+          router.push({ name: "SlipList" });
+          break;
+        case "3":
+          router.push({ name: "SlipInput" });
           auth.value.signOut();
           break;
       }

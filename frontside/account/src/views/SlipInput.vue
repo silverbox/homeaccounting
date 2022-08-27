@@ -60,60 +60,37 @@
 
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
-import { SlipRec, BalanceView } from '@/common/interfaces';
+import { SlipView, BalanceView } from '@/common/interfaces';
 import { ElMessage } from 'element-plus'
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
-import myutils from '@/common/myutils';
-
-
-const slipDef: SlipRec = {
-  tgt_date: new Date(),
-  kind_cd: KIND_MST[0].kind_cd,
-  method_cd: PAY_METHOD_MST[0].method_cd,
-  uuid: '',
-  value: 0,
-  memo: ''
-};
+import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
 
 export default defineComponent({
   name: 'SlipInput',
   setup() {
+    const api = new ApiCalls();
+
     const balance = ref<number>(0);
     const submiting = ref<boolean>(false);
-    const slip = ref<SlipRec>(slipDef);
+    const slip = ref<SlipView>(DEF_SLIP);
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
     const balancelist = ref<BalanceView[]>([]);
-    const api = new ApiCalls();
 
     const onsubmit = async () => {
-      console.log('slip-data1:' + slip.value.method_cd + ':' + slip.value.uuid);
       submiting.value = true;
 
       const slipData = {
-        'tgt_date': myutils.getYYYYMMDDStr(slip.value.tgt_date),
+        'tgt_date': slip.value.tgt_date_str,
         'kind_cd': slip.value.kind_cd,
         'method_cd': slip.value.method_cd,
         'uuid': slip.value.uuid,
         'value': slip.value.value,
         'memo': slip.value.memo ? slip.value.memo : ''
       };
-      console.log(slipData);
 
-      // var self = this
-      // this.$cognito.callPostApi(this.$axios, this.apienv.baseendpoint + 'slip', slipdata).then(
-      //   response => {
-      //     console.log(response.data)
-      //     self.$message({message: '登録しました', type: 'success'})
-      //     self.initData()
-      //     self.submiting = false
-      //   }
-      // ).catch(err => {
-      //   self.$message({message: err, type: 'error'})
-      //   self.submiting = false
-      // })
       try {
         await api.postSlip(slipData);
         initData();
@@ -136,9 +113,9 @@ export default defineComponent({
       // get balance data
       balanceloading.value = true;
 
-      const tgtToDateStr = myutils.getYYYYMMDDStr(new Date());
+      const tgtToDateStr = accountUtils.getYYYYMMDDStr(new Date());
       const balanceList = await api.getBalanceList(tgtToDateStr);
-      balancedate.value = myutils.getLocalDateStr(tgtToDateStr);
+      balancedate.value = accountUtils.getLocalDateStr(tgtToDateStr);
       balancelist.value = balanceList;
       balanceloading.value = false;
     };
