@@ -35,7 +35,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const auth = ref(useAuthenticator());
-    const activeIndex = ref<string>("2");
+    const activeIndex = ref<string>("1");
     const hideSignup = ref<boolean>(true);
     const menuEllipsis = ref<boolean>(false);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -53,7 +53,7 @@ export default defineComponent({
           break;
       }
     };
-    router.push({ name: "SlipList" });
+    router.push({ name: "SlipInput" });
     return {
       auth,
       activeIndex,
