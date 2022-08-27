@@ -60,12 +60,12 @@
 
 <script lang='ts'>
 import { defineComponent, computed, ref, onMounted } from 'vue';
-import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
+import { SlipView, BalanceView } from '@/common/interfaces';
 import { ElMessage } from 'element-plus'
 
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
-import myutils from '@/common/myutils';
+import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
 
 export default defineComponent({
   name: 'SlipInput',
@@ -74,7 +74,7 @@ export default defineComponent({
 
     const balance = ref<number>(0);
     const submiting = ref<boolean>(false);
-    const slip = ref<SlipRec>(DEF_SLIP);
+    const slip = ref<SlipView>(DEF_SLIP);
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
     const balancelist = ref<BalanceView[]>([]);
@@ -83,7 +83,7 @@ export default defineComponent({
       submiting.value = true;
 
       const slipData = {
-        'tgt_date': myutils.getYYYYMMDDStr(slip.value.tgt_date),
+        'tgt_date': slip.value.tgt_date_str,
         'kind_cd': slip.value.kind_cd,
         'method_cd': slip.value.method_cd,
         'uuid': slip.value.uuid,
@@ -113,9 +113,9 @@ export default defineComponent({
       // get balance data
       balanceloading.value = true;
 
-      const tgtToDateStr = myutils.getYYYYMMDDStr(new Date());
+      const tgtToDateStr = accountUtils.getYYYYMMDDStr(new Date());
       const balanceList = await api.getBalanceList(tgtToDateStr);
-      balancedate.value = myutils.getLocalDateStr(tgtToDateStr);
+      balancedate.value = accountUtils.getLocalDateStr(tgtToDateStr);
       balancelist.value = balanceList;
       balanceloading.value = false;
     };

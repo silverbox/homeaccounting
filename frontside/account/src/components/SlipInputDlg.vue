@@ -1,6 +1,7 @@
 <template>
-  <el-dialog title="入力" class="slipinputdlg" v-loading="saving">
-    <el-form ref="form" :model="slip" label-width="80px">
+  <div class="slipinputdlg">
+  <el-dialog title="入力" v-model="dialogShow" center>
+    <el-form ref="form" v-model="slip" label-width="80px">
       <el-form-item label="日付">
         <el-date-picker v-model="slip.tgt_date_obj" type="date" placeholder="Pick a day" />
       </el-form-item>
@@ -36,35 +37,39 @@
     </el-form>
     <div class="dialog-footer">
       <el-button type="warning" :plain="true" @click="onDelSubmit">削除</el-button>
-      <el-button type="danger" :plain="true" >中止</el-button>
+      <el-button type="danger" :plain="true" @click="dialogShow = false">中止</el-button>
       <el-button type="primary" @click="onUpdSubmit">登録</el-button>
     </div>
   </el-dialog>
+  </div>
 </template>
 
 <script>
-import { defineComponent, computed, ref, onMounted, props, toRefs } from 'vue';
-import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
-import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
-import myutils from '@/common/myutils';
-import ApiCalls from '@/common/api';
+import { defineComponent, computed, ref, watch, props, toRefs } from 'vue';
 import { ElMessage } from 'element-plus'
+
+import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
+import { SlipView } from '@/common/interfaces';
+import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
+import ApiCalls from '@/common/api';
 
 export default defineComponent({
   name: 'SlipInputDlg',
   setup(props, context) {
     const api = new ApiCalls();
     //
-    const { slipdata } = toRefs(props);
+    const { slipdata, dialogVisible } = toRefs(props);
+    const dialogShow = computed({
+      get: () => dialogVisible.value,
+      set: val => context.emit('cancelDialog')
+    });
 
     const kindMst = KIND_MST;
     const payMethodMst = PAY_METHOD_MST;
     const balance = ref(0);
     const saving = ref(false);
-    // const slip = ref<SlipRec>(myutils.cloneSlip(DEF_SLIP));
-    // const slipOld = ref<SlipRec>(myutils.cloneSlip(DEF_SLIP));
-    const slip = ref<SlipRec>(myutils.cloneSlip(slipdata.value));
-    const slipOld = ref<SlipRec>(myutils.cloneSlip(slipdata.value));
+    const slip = ref(accountUtils.cloneSlip(slipdata.value));
+    const slipOld = ref(accountUtils.cloneSlip(slipdata.value));
     //
     const onDelSubmit = () => {
       onSubmitSub('del');
@@ -73,16 +78,14 @@ export default defineComponent({
       onSubmitSub('upd');
     };
     const onSubmitSub = async (mode) => {
-      saving.value = true;
-
       const slipData = {
-        'tgt_date': myutils.getYYYYMMDDStr(slip.value.tgt_date_obj),
+        'tgt_date': accountUtils.getYYYYMMDDStr(slip.value.tgt_date_obj),
         'kind_cd': slip.value.kind_cd,
         'method_cd': slip.value.method_cd,
         'uuid': slip.value.uuid,
         'value': slip.value.value,
         'memo': slip.value.memo ? slip.value.memo : '',
-        'old_tgt_date': myutils.getYYYYMMDDStr(slipOld.value.tgt_date_obj),
+        'old_tgt_date': accountUtils.getYYYYMMDDStr(slipOld.value.tgt_date_obj),
         'old_kind_cd': slipOld.value.kind_cd,
         'old_uuid': slipOld.value.uuid,
         'old_method_cd': slipOld.value.method_cd,
@@ -100,11 +103,14 @@ export default defineComponent({
         message: '登録しました',
         type: 'success',
       });
-      saving.value = false;
       context.emit("slipSubmit", mode, slipData);
     };
-
+    watch(slipdata, () => {
+      slip.value = accountUtils.cloneSlip(slipdata.value);
+      slipOld.value = accountUtils.cloneSlip(slipdata.value);
+    });
     return {
+      dialogShow,
       balance,
       kindMst,
       payMethodMst,
@@ -116,9 +122,17 @@ export default defineComponent({
       onUpdSubmit,
     }
   },
+  emits: [
+    'slipSubmit',
+    'cancelDialog'
+  ],
   props: {
+    dialogVisible: {
+      type: Boolean,
+      require: true
+    },
     slipdata: {
-      type: SlipRec,
+      type: SlipView,
       require: true
     }
   },

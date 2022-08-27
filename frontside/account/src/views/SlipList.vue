@@ -16,7 +16,7 @@
           <div class="slip-val-elem slip-w-num-h ">金額</div>
           <div class="slip-val-elem ">メモ</div>
         </div>
-        <div v-for="(item, index) in sliplist" class="slip-item" :key="index" @click="slipedit(item.uuid)">
+        <div v-for="(item, index) in slipViewList" class="slip-item" :key="index" @click="slipedit(item.uuid)">
           <div class="slip-val-elem slip-w-mid ">{{ item.tgt_date_str }}</div>
           <div class="slip-val-elem slip-w-mid ">{{ item.kind_nm }}</div>
           <div class="slip-val-elem slip-w-mid ">{{ item.method_nm }}</div>
@@ -30,18 +30,20 @@
       </p>
       <p v-if="noMore">Limit over(100 records or 33 days)</p>
     </div>
-    <SlipInputDlg v-if="dialogVisible"
-      v-bind:slipdata="dialogSlip"
-      v-on:slipSubmit="onSlipSubmit"
-    ></SlipInputDlg>
   </div>
+  <SlipInputDlg
+    v-bind:dialogVisible="dialogVisible"
+    v-bind:slipdata="dialogSlip"
+    v-on:slipSubmit="onSlipSubmit"
+    v-on:cancelDialog="onSlipCancel"
+  ></SlipInputDlg>
 </template>
 
 <script lang='ts'>
 import { defineComponent, computed, ref, getCurrentInstance } from 'vue';
-import { SlipRec, BalanceView, DEF_SLIP } from '@/common/interfaces';
-import SlipInputDlg from '@/components/SlipInputDlg.vue'
-import myutils from '@/common/myutils';
+import { SlipView, BalanceView } from '@/common/interfaces';
+import SlipInputDlg from '@/components/SlipInputDlg.vue';
+import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
 import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
 
@@ -56,42 +58,51 @@ export default {
     const api = new ApiCalls();
     //
     const tgtdate = ref<Date>(new Date());
-    const sliplist = ref<SlipRec[]>([]);
+    const slipViewList = ref<SlipView[]>([]);
     const loading = ref<boolean>(false);
     const loaddatecnt = ref<number>(LOAD_DATE_CNT);
     const loadeddatecnt = ref<number>(0);
     const dlgeditidx = ref<number>(-1);
     const wkdate = ref<Date>(new Date());
     //
-    const dialogSlip = ref<SlipRec>(DEF_SLIP);
+    const dialogSlip = ref<SlipView>(DEF_SLIP);
     const dialogVisible = ref<boolean>(false);
 
     const count = computed(() => {
-      return sliplist.value.length;
+      return slipViewList.value.length;
     });
     const noMore = computed(() => {
-      return sliplist.value.length >= LOAD_LIMIT_REC || loadeddatecnt.value >= LOAD_LIMIT_DATE;
+      return slipViewList.value.length >= LOAD_LIMIT_REC || loadeddatecnt.value >= LOAD_LIMIT_DATE;
     });
     const disabled = computed(() => {
       return loading.value || noMore.value;
     });
 
     const slipedit = (uuid: string) => {
-      for (const slip of sliplist.value) {
-        if (slip.uuid == uuid) {
-          dialogSlip.value = slip;
+      for (const slipView of slipViewList.value) {
+        if (slipView.uuid == uuid) {
+          dialogSlip.value = slipView;
+          dialogVisible.value = true;
+          return;
         }
       }
-      dialogVisible.value = true;
     };
-    const onSlipSubmit = (mode: string, newSlipData: {[key: string]: string}) => {
-      console.log('dlgCloseCallback:' + mode + ':' + newSlipData);
+    const onSlipSubmit = (mode: string, newSlipData: {[key: string]: any}) => {
       if (mode === 'upd') {
-        sliplist.value[dlgeditidx.value] = myutils.getSlipView(newSlipData);
+        slipViewList.value.forEach((slipView, index) => {
+          if (slipView.uuid == newSlipData.uuid) {
+            slipViewList.value[index] = accountUtils.convertMapToSlipView(newSlipData);
+            return;
+          }
+        });
         if (instance != null && instance.proxy != null) instance.proxy.$forceUpdate();
       } else {
-        sliplist.value.splice(dlgeditidx.value, 1);
+        slipViewList.value.splice(dlgeditidx.value, 1);
       }
+      dialogVisible.value = false;
+    };
+    const onSlipCancel = () => {
+      dialogVisible.value = false;
     };
     const loadMore = () => {
       if (!loading.value) {
@@ -100,12 +111,12 @@ export default {
     };
     const loadsub = async () => {
       loading.value = true;
-      const tgtToDateStr = myutils.getYYYYMMDDStr(wkdate.value);
+      const tgtToDateStr = accountUtils.getYYYYMMDDStr(wkdate.value);
       wkdate.value.setDate(wkdate.value.getDate() + 1 - LOAD_DATE_CNT);
-      const tgtFromDateStr = myutils.getYYYYMMDDStr(wkdate.value);
+      const tgtFromDateStr = accountUtils.getYYYYMMDDStr(wkdate.value);
 
-      const newSlipList = await api.getSlipList(tgtToDateStr, tgtFromDateStr);
-      Array.prototype.push.apply(sliplist.value, newSlipList);
+      const newSlipViewList = await api.getSlipViewList(tgtToDateStr, tgtFromDateStr);
+      Array.prototype.push.apply(slipViewList.value, newSlipViewList);
       wkdate.value.setDate(wkdate.value.getDate() - 1);
       loading.value = false;
       loadeddatecnt.value += loaddatecnt.value;
@@ -114,7 +125,7 @@ export default {
       if (!loading.value) {
         loading.value = true;
         wkdate.value = new Date(tgtdate.value);
-        sliplist.value = [];
+        slipViewList.value = [];
         loadeddatecnt.value = 0;
         loading.value = false;
         loadMore();
@@ -123,7 +134,7 @@ export default {
 
     return {
       tgtdate,
-      sliplist,
+      slipViewList,
       loading,
       loaddatecnt,
       loadeddatecnt,
@@ -137,6 +148,7 @@ export default {
       disabled,
       //
       onSlipSubmit,
+      onSlipCancel,
       slipedit,
       loadMore,
       reload
