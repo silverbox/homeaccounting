@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAuthenticator } from '@aws-amplify/ui-vue';
 import { CognitoUserSession } from 'amazon-cognito-identity-js';
 import axios from 'axios';
@@ -11,7 +12,6 @@ export default class ApiCalls {
   /**
    * inner common method
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _getMergedConfig = (config: {[key:string]: any}, jwtToken: string): {[key:string]: any} => {
     const addHeaders = {
       'Content-Type': 'application/json',
@@ -26,7 +26,6 @@ export default class ApiCalls {
       'headers': newHeaders
     };
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _callGetApi = async (url: string, config: {[key:string]: any}, callback: any): Promise<any> => {
     const auth = useAuthenticator();
     auth.user.getSession(async (error: Error, session: CognitoUserSession) => {
@@ -38,7 +37,6 @@ export default class ApiCalls {
       return callback(response);
     });
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _callPostApi = async (url: string, config: {[key:string]: any}, data: {[key:string]: any}, callback: any): Promise<any> => {
     const auth = useAuthenticator();
     auth.user.getSession(async (error: Error, session: CognitoUserSession) => {
@@ -58,7 +56,6 @@ export default class ApiCalls {
   getBalanceList = async (tgtDate: string): Promise<BalanceView[]> => {
     return new Promise(resolve => {
       const url = `${API_BASE_URL}/balance?tgt_date=${tgtDate}`;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._callGetApi(url, {}, (response: any) => {
         const wkBalanceList: BalanceView[] = [];
         for (const resdata of response.data) {
@@ -76,7 +73,6 @@ export default class ApiCalls {
   getSlipViewList = async (tgtToDateStr: string, tgtFromDateStr: string): Promise<SlipView[]> => {
     return new Promise(resolve => {
       const url = `${API_BASE_URL}/slip?tgt_date_to=${tgtToDateStr}&tgt_date_from=${tgtFromDateStr}`;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._callGetApi(url, {}, (response: any) => {
         const wkSlipList: SlipView[] = [];
         for (const resdata of response.data) {
@@ -87,14 +83,21 @@ export default class ApiCalls {
     });
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   postSlip = async (slipData: {[key:string]: any}): Promise<boolean> => {
     return new Promise(resolve => {
       const url = `${API_BASE_URL}/slip`;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._callPostApi(url, {}, slipData, (response: any) => {
         resolve(response);
       });
     });
-  }
+  };
+
+  getChartDataResponse = async (tgtToDateStr: string, loadDateCount: number): Promise<any> => {
+    return new Promise(resolve => {
+      const url = `${API_BASE_URL}/chart?tgt_date_to=${tgtToDateStr}&tgt_date_count=${loadDateCount}`;
+      this._callGetApi(url, {}, (response: any) => {
+        resolve(response.data);
+      });
+    });
+  };
 }
