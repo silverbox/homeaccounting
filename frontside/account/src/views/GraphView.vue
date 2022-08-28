@@ -1,39 +1,33 @@
 <template>
   <div class='container'>
-    <bar-chart v-if='loaded' :chart-data='chartData' :options='options'></bar-chart>
-    <line-chart v-if='loaded' :chart-data='balanceChartData' :options='balanceOptions'></line-chart>
+    <BarChart v-if='loaded' :chartData='chartData' :chartOptions='chartOptions'></BarChart>
+    <LineChart v-if='loaded' :chartData='balanceChartData' :chartOptions='balanceOptions'></LineChart>
   </div>
 </template>
 
 <script>
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 
-import BarChart from '@/components/BarChart.js';
-import LineChart from '@/components/LineChart.js';
+import BarChart from '@/components/BarChart';
+import LineChart from '@/components/LineChart';
 import * as palette from 'google-palette';
 import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
+import ApiCalls from '@/common/api';
 
 const LOAD_DATE_CNT = 7;
 
 const TOOLTIPOPTION = {
   callbacks: {
     label: function (tooltipItem, data) {
-      var label = data.datasets[tooltipItem.datasetIndex].label || ''
-
+      var label = tooltipItem.dataset.label;
+      const infoAry = tooltipItem.dataset.detail[tooltipItem.dataIndex];
       if (label) {
-        label += ': '
+        label += `: ${tooltipItem.dataset.data[tooltipItem.dataIndex]}`;
+        if (infoAry && infoAry.join('').length > 0) {
+          label += '[' + tooltipItem.dataset.detail[tooltipItem.dataIndex].join(', ') + ']';
+        }
       }
-      label += tooltipItem.yLabel + ' ['
-      label += data.datasets[tooltipItem.datasetIndex].detail[tooltipItem.index] + ']'
-      // console.log(tooltipItem)
-      // console.log(tooltipItem.datasetIndex + ':' + tooltipItem.index)
-      return label
-      // var retlist = []
-      // retlist.push(label)
-      // retlist.push(data.datasets[tooltipItem.datasetIndex].detail[tooltipItem.index])
-      // console.log(data.datasets[tooltipItem.datasetIndex].detail[tooltipItem.index])
-      // console.log(retlist)
-      // return retlist
+      return label;
     }
   }
 }
@@ -47,20 +41,49 @@ export default defineComponent({
   setup() {
     const api = new ApiCalls();
 
-    const loaded = ref<boolean>(false);
-    const chartData = ref<any>(null);
-    const options = ref<any>(null);
-    const balanceChartData = ref<any>(null);
-    const balanceOptions = ref<any>(null);
+    const loaded = ref(false);
+    const chartData = ref({});
+    const chartOptions = ref({});
+    const balanceChartData = ref({});
+    const balanceOptions = ref({});
 
     const loadgraph = async () => {
       const tgtToDateStr = accountUtils.getYYYYMMDDStr(new Date());
 
       const graphDataResponse = await api.getChartDataResponse(tgtToDateStr, LOAD_DATE_CNT);
 
-      console.log(graphDataResponse);
-      options.value = graphDataResponse['options'];
-      options.value['tooltips'] = TOOLTIPOPTION;
+      chartOptions.value = {
+        'plugins': {
+          'title': {
+            display: true,
+            text: '消費額'
+          },
+          'tooltip': TOOLTIPOPTION
+        },
+        'scales': {
+          'x': {
+            'stacked': 'true',
+            'title': {
+              'display': 'true',
+              'text': '日付'
+            }
+          },
+          'y': {
+            'stacked': 'true',
+            'title': {
+              'display': 'true',
+              'text': '金額'
+            },
+            'ticks': {
+              'stepSize': 500
+            },
+            'beginAtZero': 'true'
+          }
+        }
+      };
+
+      // chartOptions.value = {}; //graphDataResponse['options'];
+      // chartOptions.value['plugins'] = { 'tooltip': TOOLTIPOPTION };
       const barColors = palette('mpn65', graphDataResponse['chartdata']['datasets'].length).map((hex) => {
         return '#' + hex;
       });
@@ -69,7 +92,34 @@ export default defineComponent({
       });
       chartData.value = graphDataResponse['chartdata'];
 
-      balanceOptions.value = graphDataResponse['balanceoptions'];
+      balanceOptions.value = {
+        'plugins': {
+          'title': {
+            display: true,
+            text: '残高推移'
+          }
+        },
+        'scales': {
+          'x': {
+            'stacked': 'true',
+            'title': {
+              'display': 'true',
+              'text': '日付'
+            }
+          },
+          'y': {
+            'title': {
+              'display': 'true',
+              'text': '金額'
+            },
+            'ticks': {
+              'stepSize': 5000
+            },
+            'beginAtZero': 'true'
+          }
+        }
+      };
+      // balanceOptions.value = graphDataResponse['balanceoptions'];
       const lineColors = palette('mpn65', graphDataResponse['balancechartdata']['datasets'].length).map((hex) => {
         return '#' + hex
       });
@@ -89,59 +139,11 @@ export default defineComponent({
     return {
       loaded,
       chartData,
-      options,
+      chartOptions,
       balanceChartData,
       balanceOptions
     }
   }
-
-  // data: () => ({
-  //   loaded: false,
-  //   chartdata: null,
-  //   options: null,
-  //   balancechartdata: null,
-  //   balanceoptions: null
-  // }),
-  // mounted () {
-  //   this.loaded = false
-  //   this.loadgraph()
-  // },
-  // methods: {
-  //   loadgraph: function () {
-  //     var that = this
-
-  //     that.loading = true
-  //     const tgttodatestr = that.$myutils.getYYYYMMDDStr(new Date())
-
-  //     const prmstr = 'tgt_date_to=' + tgttodatestr + '&tgt_date_count=' + LOAD_DATE_CNT
-  //     this.$cognito.callGetApi(that.$axios, that.apienv.baseendpoint + 'chart?' + prmstr).then(response => {
-  //       console.log('loadgraph response:' + prmstr)
-  //       that.options = response.data['options']
-  //       that.options['tooltips'] = TOOLTIPOPTION
-  //       const barcolors = palette('mpn65', response.data['chartdata']['datasets'].length).map((hex) => {
-  //         return '#' + hex
-  //       })
-  //       response.data['chartdata']['datasets'].forEach(function (value, index) {
-  //         value['backgroundColor'] = barcolors[index]
-  //       })
-  //       that.chartdata = response.data['chartdata']
-
-  //       that.balanceoptions = response.data['balanceoptions']
-  //       const linecolors = palette('mpn65', response.data['balancechartdata']['datasets'].length).map((hex) => {
-  //         return '#' + hex
-  //       })
-  //       response.data['balancechartdata']['datasets'].forEach(function (value, index) {
-  //         value['borderColor'] = linecolors[index]
-  //         value['lineTension'] = 0
-  //       })
-  //       that.balancechartdata = response.data['balancechartdata']
-
-  //       that.loaded = true
-  //     }).catch(err => {
-  //       that.$message({message: err, type: 'error'})
-  //     })
-  //   }
-  // }
 });
 </script>
 

@@ -1,4 +1,4 @@
-// eslint-disable @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useAuthenticator } from '@aws-amplify/ui-vue';
 import { CognitoUserSession } from 'amazon-cognito-identity-js';
 import axios from 'axios';
