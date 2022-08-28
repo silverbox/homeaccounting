@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import SlipInput from '@/views/SlipInput.vue'
 import SlipList from '@/views/SlipList.vue'
-
+import GraphView from '@/views/GraphView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -20,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/list',
     name: 'SlipList',
     component: SlipList,
+  },
+  {
+    path: '/graph',
+    name: 'GraphView',
+    component: GraphView,
   },
   {
     path: '/about',
