@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import SlipInput from '@/views/SlipInput.vue'
 import SlipList from '@/views/SlipList.vue'
 import GraphView from '@/views/GraphView.vue'
+import ToolsView from '@/views/ToolsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -25,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/graph',
     name: 'GraphView',
     component: GraphView,
+  },
+  {
+    path: '/tools',
+    name: 'ToolsView',
+    component: ToolsView,
   },
   {
     path: '/about',

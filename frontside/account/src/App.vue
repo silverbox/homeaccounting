@@ -12,8 +12,9 @@
       <el-menu-item label="Input" name="input" index="1">Input</el-menu-item>
       <el-menu-item label="List" name="list" index="2">List</el-menu-item>
       <el-menu-item label="Graph" name="graph" index="3">Graph</el-menu-item>
+      <el-menu-item label="Tools" name="tools" index="4">Tools</el-menu-item>
       <div class="flex-grow" />
-      <el-menu-item label="SignOut" name="signout" index="4">SignOut</el-menu-item>
+      <el-menu-item label="SignOut" name="signout" index="5">SignOut</el-menu-item>
     </el-menu>
     <router-view/>
   </div>
@@ -52,6 +53,9 @@ export default defineComponent({
           router.push({ name: "GraphView" });
           break;
         case "4":
+          router.push({ name: "ToolsView" });
+          break;
+        case "5":
           auth.value.signOut();
           break;
       }

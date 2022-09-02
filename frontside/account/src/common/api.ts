@@ -100,4 +100,13 @@ export default class ApiCalls {
       });
     });
   };
+
+  getSlipZipFileName = async (tgtToDateStr: string, tgtFromDateStr: string, identityId: string): Promise<string> => {
+    return new Promise(resolve => {
+      const url = `${API_BASE_URL}/download?tgt_date_to=${tgtToDateStr}&tgt_date_from=${tgtFromDateStr}&identityid=${identityId}`;
+      this._callGetApi(url, {}, (response: any) => {
+        resolve(response.data);
+      });
+    });
+  };
 }
