@@ -94,7 +94,7 @@ export default defineComponent({
         } catch (error: any) {
           ElMessage({
             showClose: true,
-            message: error,
+            message: `ダウンロード情報取得に失敗しました\n${error}`,
             type: 'error',
           });
         }
