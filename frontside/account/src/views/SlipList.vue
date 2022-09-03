@@ -60,9 +60,9 @@ export default {
     const tgtdate = ref<Date>(new Date());
     const slipViewList = ref<SlipView[]>([]);
     const loading = ref<boolean>(false);
-    const loaddatecnt = ref<number>(LOAD_DATE_CNT);
-    const loadeddatecnt = ref<number>(0);
-    const dlgeditidx = ref<number>(-1);
+    const loadDateCnt = ref<number>(LOAD_DATE_CNT);
+    const loadedDateCnt = ref<number>(0);
+    const dlgEditIdx = ref<number>(-1);
     const wkdate = ref<Date>(new Date());
     //
     const dialogSlip = ref<SlipView>(DEF_SLIP);
@@ -72,17 +72,18 @@ export default {
       return slipViewList.value.length;
     });
     const noMore = computed(() => {
-      return slipViewList.value.length >= LOAD_LIMIT_REC || loadeddatecnt.value >= LOAD_LIMIT_DATE;
+      return slipViewList.value.length >= LOAD_LIMIT_REC || loadedDateCnt.value >= LOAD_LIMIT_DATE;
     });
     const disabled = computed(() => {
       return loading.value || noMore.value;
     });
 
     const slipedit = (uuid: string) => {
-      for (const slipView of slipViewList.value) {
+      for (const [index, slipView] of slipViewList.value.entries()) {
         if (slipView.uuid == uuid) {
           dialogSlip.value = slipView;
           dialogVisible.value = true;
+          dlgEditIdx.value = index;
           return;
         }
       }
@@ -97,7 +98,7 @@ export default {
         });
         if (instance != null && instance.proxy != null) instance.proxy.$forceUpdate();
       } else {
-        slipViewList.value.splice(dlgeditidx.value, 1);
+        slipViewList.value.splice(dlgEditIdx.value, 1);
       }
       dialogVisible.value = false;
     };
@@ -119,14 +120,14 @@ export default {
       Array.prototype.push.apply(slipViewList.value, newSlipViewList);
       wkdate.value.setDate(wkdate.value.getDate() - 1);
       loading.value = false;
-      loadeddatecnt.value += loaddatecnt.value;
+      loadedDateCnt.value += loadDateCnt.value;
     };
     const reload = () => {
       if (!loading.value) {
         loading.value = true;
         wkdate.value = new Date(tgtdate.value);
         slipViewList.value = [];
-        loadeddatecnt.value = 0;
+        loadedDateCnt.value = 0;
         loading.value = false;
         loadMore();
       }
@@ -136,9 +137,9 @@ export default {
       tgtdate,
       slipViewList,
       loading,
-      loaddatecnt,
-      loadeddatecnt,
-      dlgeditidx,
+      loadDateCnt,
+      loadedDateCnt,
+      dlgEditIdx,
       wkdate,
       dialogSlip,
       dialogVisible,
