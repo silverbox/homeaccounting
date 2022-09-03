@@ -2,7 +2,7 @@
   <div class="inputform">
     <el-form class="input-form" ref="form" :model="slip" label-width="100px">
       <el-form-item class="input-field" label="日付">
-        <el-date-picker v-model="slip.tgt_date" type="date" placeholder="Pick a day" />
+        <el-date-picker v-model="slip.tgt_date_obj" type="date" placeholder="Pick a day" />
       </el-form-item>
       <el-form-item class="input-field" label="種類">
         <el-select v-model="slip.kind_cd" placeholder="Select item kind">
@@ -74,7 +74,7 @@ export default defineComponent({
 
     const balance = ref<number>(0);
     const submiting = ref<boolean>(false);
-    const slip = ref<SlipView>(DEF_SLIP);
+    const slip = ref<SlipView>(accountUtils.cloneSlip(DEF_SLIP));
     const balanceloading = ref<boolean>(false);
     const balancedate = ref<string>('');
     const balancelist = ref<BalanceView[]>([]);
@@ -83,7 +83,7 @@ export default defineComponent({
       submiting.value = true;
 
       const slipData = {
-        'tgt_date': slip.value.tgt_date_str,
+        'tgt_date': accountUtils.getYYYYMMDDStr(slip.value.tgt_date_obj),
         'kind_cd': slip.value.kind_cd,
         'method_cd': slip.value.method_cd,
         'uuid': slip.value.uuid,
@@ -118,6 +118,8 @@ export default defineComponent({
       balancedate.value = accountUtils.getLocalDateStr(tgtToDateStr);
       balancelist.value = balanceList;
       balanceloading.value = false;
+
+      slip.value = accountUtils.cloneSlip(DEF_SLIP);
     };
 
     onMounted(() => {
