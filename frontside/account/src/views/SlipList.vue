@@ -25,7 +25,7 @@
         </div>
       </div>
       <p v-if="loading" v-loading="loading">
-        <span>Loading {{ loaddatecnt }} days before from </span>
+        <span>Loading {{ loadDateCnt }} days before from </span>
         <el-date-picker v-model="wkdate" type="date" :readonly="true" />
       </p>
       <p v-if="noMore">Limit over(100 records or 33 days)</p>
@@ -41,19 +41,18 @@
 
 <script lang='ts'>
 import { defineComponent, computed, ref, getCurrentInstance } from 'vue';
-import { SlipView, BalanceView } from '@/common/interfaces';
+import { SlipView } from '@/common/interfaces';
 import SlipInputDlg from '@/components/SlipInputDlg.vue';
 import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
-import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
 
 const LOAD_DATE_CNT = 3
 const LOAD_LIMIT_DATE = 31
 const LOAD_LIMIT_REC = 100
 
-export default {
+export default defineComponent({
   name: 'SlipList',
-  setup(props: any, context: any) {
+  setup() {
     const instance = getCurrentInstance();
     const api = new ApiCalls();
     //
@@ -88,7 +87,7 @@ export default {
         }
       }
     };
-    const onSlipSubmit = (mode: string, newSlipData: {[key: string]: any}) => {
+    const onSlipSubmit = (mode: string, newSlipData: {[key: string]: string}) => {
       if (mode === 'upd') {
         slipViewList.value.forEach((slipView, index) => {
           if (slipView.uuid == newSlipData.uuid) {
@@ -158,7 +157,7 @@ export default {
   components: {
     SlipInputDlg
   }
-}
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
