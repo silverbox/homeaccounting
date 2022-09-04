@@ -11,14 +11,14 @@ import { defineComponent, onMounted, ref } from 'vue';
 import BarChart from '@/components/BarChart';
 import LineChart from '@/components/LineChart';
 import * as palette from 'google-palette';
-import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
+import { accountUtils } from '@/common/accountUtils';
 import ApiCalls from '@/common/api';
 
 const LOAD_DATE_CNT = 7;
 
 const TOOLTIPOPTION = {
   callbacks: {
-    label: function (tooltipItem, data) {
+    label: function (tooltipItem) {
       var label = tooltipItem.dataset.label;
       const infoAry = tooltipItem.dataset.detail[tooltipItem.dataIndex];
       if (label) {
@@ -82,8 +82,6 @@ export default defineComponent({
         }
       };
 
-      // chartOptions.value = {}; //graphDataResponse['options'];
-      // chartOptions.value['plugins'] = { 'tooltip': TOOLTIPOPTION };
       const barColors = palette('mpn65', graphDataResponse['chartdata']['datasets'].length).map((hex) => {
         return '#' + hex;
       });
@@ -119,7 +117,6 @@ export default defineComponent({
           }
         }
       };
-      // balanceOptions.value = graphDataResponse['balanceoptions'];
       const lineColors = palette('mpn65', graphDataResponse['balancechartdata']['datasets'].length).map((hex) => {
         return '#' + hex
       });

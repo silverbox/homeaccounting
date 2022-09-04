@@ -21,16 +21,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent /* , computed, onMounted */ , ref } from 'vue';
+import { defineComponent, onMounted , ref } from 'vue';
 import { useRouter } from "vue-router";
 import { Authenticator, useAuthenticator, translations } from "@aws-amplify/ui-vue";
-import { Amplify, I18n } from 'aws-amplify';
+import { I18n } from 'aws-amplify';
 import "@aws-amplify/ui-vue/styles.css";
 I18n.putVocabularies(translations);
 I18n.setLanguage('ja');
 
-import awsconfig from '@/aws-exports';
-Amplify.configure(awsconfig);
+// import awsconfig from '@/aws-exports';
+// Amplify.configure(awsconfig);
 
 export default defineComponent({
   name: 'App',
@@ -60,7 +60,26 @@ export default defineComponent({
           break;
       }
     };
-    router.push({ name: "SlipInput" });
+    onMounted(() => {
+      const path = router.currentRoute.value.path
+      switch(path) {
+        case "/input":
+          activeIndex.value = "1";
+          break;
+        case "/list":
+          activeIndex.value = "2";
+          break;
+        case "/graph":
+          activeIndex.value = "3";
+          break;
+        case "/tools":
+          activeIndex.value = "4";
+          break;
+        // default:
+        //   activeIndex.value = "1";
+        //   router.push({ name: "SlipInput" });
+      }
+    });
     return {
       auth,
       activeIndex,

@@ -28,10 +28,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue';
+import { defineComponent, ref } from 'vue';
 import AWS from 'aws-sdk'
-import { S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { useAuthenticator } from '@aws-amplify/ui-vue';
 import { CognitoUserSession } from 'amazon-cognito-identity-js';
 import { ElMessage } from 'element-plus'
@@ -91,6 +89,7 @@ export default defineComponent({
           };
           // URL発行
           s3.getSignedUrl('getObject', getUrlparams, execDownloadCallback);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
           ElMessage({
             showClose: true,

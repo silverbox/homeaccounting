@@ -45,12 +45,12 @@
 </template>
 
 <script>
-import { defineComponent, computed, ref, watch, props, toRefs } from 'vue';
+import { defineComponent, computed, ref, watch, toRefs } from 'vue';
 import { ElMessage } from 'element-plus'
 
-import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
+import { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import { SlipView } from '@/common/interfaces';
-import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
+import { accountUtils } from '@/common/accountUtils';
 import ApiCalls from '@/common/api';
 
 export default defineComponent({
@@ -61,7 +61,7 @@ export default defineComponent({
     const { slipdata, dialogVisible } = toRefs(props);
     const dialogShow = computed({
       get: () => dialogVisible.value,
-      set: val => context.emit('cancelDialog')
+      set: val => {if (!val) {context.emit('cancelDialog')}}
     });
 
     const kindMst = KIND_MST;

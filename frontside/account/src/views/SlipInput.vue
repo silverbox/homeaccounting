@@ -59,11 +59,11 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, computed, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
 import { SlipView, BalanceView } from '@/common/interfaces';
 import { ElMessage } from 'element-plus'
 
-import masterdata, { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
+import { KIND_MST, PAY_METHOD_MST } from '@/const/masterdata';
 import ApiCalls from '@/common/api';
 import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
 
@@ -99,6 +99,7 @@ export default defineComponent({
           message: '登録しました',
           type: 'success',
         });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         ElMessage({
           showClose: true,
