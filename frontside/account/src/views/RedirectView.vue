@@ -15,6 +15,8 @@ export default defineComponent({
     onMounted(() => {
       if (redirectPath.value) {
         router.push({ path: redirectPath.value });
+      } else {
+        router.push({ name: 'SlipInput' });
       }
     });
     return {
