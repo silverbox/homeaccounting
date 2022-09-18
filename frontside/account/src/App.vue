@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted , ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { useRouter } from "vue-router";
 import { Authenticator, useAuthenticator, translations } from "@aws-amplify/ui-vue";
 import { I18n } from 'aws-amplify';
@@ -60,8 +60,8 @@ export default defineComponent({
           break;
       }
     };
-    onMounted(() => {
-      const path = router.currentRoute.value.path
+    watch(router.currentRoute, (newRoute, oldRoute) => {
+      const path = newRoute.path
       switch(path) {
         case "/input":
           activeIndex.value = "1";
