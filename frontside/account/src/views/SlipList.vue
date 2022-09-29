@@ -7,8 +7,9 @@
     <div class="infinite-list-wrapper" style="overflow:auto">
       <div
         class="listview"
+        :style="listViewStyle"
         v-infinite-scroll="loadMore"
-        :infinite-scroll-disabled="disabled">
+        :infinite-scroll-disabled="isDisabled">
         <div class="slip-header">
           <div class="slip-val-elem slip-w-mid ">日付</div>
           <div class="slip-val-elem slip-w-mid ">種類</div>
@@ -23,12 +24,12 @@
           <div class="slip-val-elem slip-w-num ">{{ item.value_fmt }}</div>
           <div class="slip-val-elem ">{{ item.memo }}</div>
         </div>
+        <p v-if="loading" v-loading="loading">
+          <span>Loading {{ loadDateCnt }} days before from </span>
+          <el-date-picker v-model="wkdate" type="date" :readonly="true" />
+        </p>
+        <p v-if="noMore">Limit over(100 records or 33 days)</p>
       </div>
-      <p v-if="loading" v-loading="loading">
-        <span>Loading {{ loadDateCnt }} days before from </span>
-        <el-date-picker v-model="wkdate" type="date" :readonly="true" />
-      </p>
-      <p v-if="noMore">Limit over(100 records or 33 days)</p>
     </div>
   </div>
   <SlipInputDlg
@@ -40,7 +41,7 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, computed, ref, getCurrentInstance } from 'vue';
+import { defineComponent, computed, ref, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue';
 import { SlipView } from '@/common/interfaces';
 import SlipInputDlg from '@/components/SlipInputDlg.vue';
 import { accountUtils, DEF_SLIP } from '@/common/accountUtils';
@@ -66,6 +67,7 @@ export default defineComponent({
     //
     const dialogSlip = ref<SlipView>(DEF_SLIP);
     const dialogVisible = ref<boolean>(false);
+    const listViewStyle = ref<Record<string, string>>({});
 
     const count = computed(() => {
       return slipViewList.value.length;
@@ -73,7 +75,7 @@ export default defineComponent({
     const noMore = computed(() => {
       return slipViewList.value.length >= LOAD_LIMIT_REC || loadedDateCnt.value >= LOAD_LIMIT_DATE;
     });
-    const disabled = computed(() => {
+    const isDisabled = computed(() => {
       return loading.value || noMore.value;
     });
 
@@ -131,7 +133,20 @@ export default defineComponent({
         loadMore();
       }
     };
-
+    const calcOnResize = () => {
+      const pageHeight = window.innerHeight;
+      const listHeight = pageHeight - 200;
+      listViewStyle.value = {
+        'height': `${listHeight}px`
+      }
+    };
+    onMounted(() => {
+      window.addEventListener('resize', calcOnResize)
+      calcOnResize();
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener('resize', calcOnResize)
+    });
     return {
       tgtdate,
       slipViewList,
@@ -142,10 +157,11 @@ export default defineComponent({
       wkdate,
       dialogSlip,
       dialogVisible,
+      listViewStyle,
       //
       count,
       noMore,
-      disabled,
+      isDisabled,
       //
       onSlipSubmit,
       onSlipCancel,
