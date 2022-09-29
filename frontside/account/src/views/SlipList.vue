@@ -8,7 +8,7 @@
       <div
         class="listview"
         v-infinite-scroll="loadMore"
-        infinite-scroll-disabled="disabled">
+        :infinite-scroll-disabled="disabled">
         <div class="slip-header">
           <div class="slip-val-elem slip-w-mid ">日付</div>
           <div class="slip-val-elem slip-w-mid ">種類</div>
@@ -174,7 +174,7 @@ export default defineComponent({
     text-align: left;
     margin-bottom: 3px;
     font-weight: bold;
-    font-color: #1f1f1f;
+    color: #1f1f1f;
     border-bottom: solid 1px #202020;
   }
   .listviewform{
